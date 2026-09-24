@@ -20,6 +20,8 @@ from torch.utils.data import DataLoader, Subset
 from torchvision import models, transforms
 from torchvision.datasets import ImageFolder
 
+from capture_corruptions import corrupt_image
+
 
 PROJECT_NAME = os.environ.get("PLANTVILLAGE_CLEARML_PROJECT", "ICV2026_PlantDisease")
 QUEUE_NAME = os.environ.get("PLANTVILLAGE_CLEARML_QUEUE", "")
@@ -92,8 +94,28 @@ def describe_environment(device):
     return info
 
 
-def predict_single(model, transform, classes, image_path: Path, device, topk: int):
+def corruption_key(image_path: Path) -> str:
+    return "/".join(image_path.parts[-2:])
+
+
+def parse_corruption(value: str):
+    if ":" not in value:
+        raise ValueError("Use the form corruption:severity, for example low_light:2")
+    name, severity = value.split(":", 1)
+    return name, int(severity)
+
+
+def predict_single(model, transform, classes, image_path: Path, device, topk: int,
+                   corruption=None, save_corrupted=None):
     image = Image.open(image_path).convert("RGB")
+
+    if corruption is not None:
+        name, severity = corruption
+        image = corrupt_image(image, name, severity, corruption_key(image_path))
+        if save_corrupted:
+            Path(save_corrupted).parent.mkdir(parents=True, exist_ok=True)
+            image.save(save_corrupted)
+
     tensor = transform(image).unsqueeze(0).to(device)
 
     with torch.inference_mode():
@@ -366,6 +388,11 @@ def build_parser():
                         help="File name of the checkpoint inside --model-dataset "
                              "(default: the only *.pth in the dataset).")
     parser.add_argument("--image", default=None)
+    parser.add_argument("--corrupt", default=None,
+                        help="Apply a capture artifact to --image before predicting, "
+                             "as name:severity, for example low_light:2.")
+    parser.add_argument("--save-corrupted", default=None,
+                        help="Write the corrupted image to this path.")
     parser.add_argument("--all", action="store_true")
     parser.add_argument("--split", default="test", choices=["train", "val", "test"])
     parser.add_argument("--data-dir", default="./PlantVillage")
@@ -414,8 +441,14 @@ def main():
     print(f"Device: {device} ({environment.get('gpu_name', environment['platform'])})")
 
     if args.image:
-        predictions = predict_single(model, transform, classes, Path(args.image), device, args.topk)
+        corruption = parse_corruption(args.corrupt) if args.corrupt else None
+        predictions = predict_single(
+            model, transform, classes, Path(args.image), device, args.topk,
+            corruption=corruption, save_corrupted=args.save_corrupted,
+        )
         print(f"\nImage: {args.image}")
+        if corruption is not None:
+            print(f"Capture artifact: {corruption[0]} severity {corruption[1]}")
         for rank, (name, probability) in enumerate(predictions, start=1):
             print(f"  {rank}. {name:60s} {probability:.4f}")
 

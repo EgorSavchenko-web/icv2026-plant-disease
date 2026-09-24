@@ -1,5 +1,7 @@
 # Plant Disease Recognition from Leaf Images
 
+https://github.com/EgorSavchenko-web/icv2026-plant-disease
+
 Computer Vision 2026, Innopolis University — Project P02.
 
 Fine-tuning versus frozen-backbone transfer of an ImageNet-pretrained ResNet-50 on PlantVillage,
@@ -96,7 +98,12 @@ can be verified without downloading the full dataset.
 
 Download `frozen.pth` and `finetune.pth` from the release assets into `checkpoints/`:
 
-<!-- TODO: paste the release URL once the repository is published -->
+Release page: <https://github.com/EgorSavchenko-web/icv2026-plant-disease/releases/tag/v1.0>
+
+```
+curl -L -o checkpoints/frozen.pth   https://github.com/EgorSavchenko-web/icv2026-plant-disease/releases/download/v1.0/frozen.pth
+curl -L -o checkpoints/finetune.pth https://github.com/EgorSavchenko-web/icv2026-plant-disease/releases/download/v1.0/finetune.pth
+```
 
 ```
 python 5_inference.py --checkpoint checkpoints/frozen.pth   --all --split test --device cuda
@@ -110,11 +117,27 @@ This reproduces every number in the report from the committed test split. Use `-
 than the default `--device auto`: `auto` falls back to CPU when a GPU is not visible, which silently
 invalidates the latency measurement.
 
-Single-image prediction, for the demo:
+Single-image prediction:
 
 ```
 python 5_inference.py --checkpoint checkpoints/finetune.pth --image path/to/leaf.JPG
 ```
+
+The same image can be passed through a capture artifact before prediction, which is what the demo
+shows. The corruption is seeded from the image path, so a single-image run reproduces exactly the
+prediction recorded for that image in `results/robustness/predictions_robustness.csv`:
+
+```
+python 5_inference.py --checkpoint checkpoints/finetune.pth \
+  --image "PlantVillage/test/Tomato___Leaf_Mold/c02d931d-c724-49b8-a6c8-440c5492d747___Crnl_L.Mold_6713.JPG"
+
+python 5_inference.py --checkpoint checkpoints/finetune.pth \
+  --image "PlantVillage/test/Tomato___Leaf_Mold/c02d931d-c724-49b8-a6c8-440c5492d747___Crnl_L.Mold_6713.JPG" \
+  --corrupt low_light:2 --save-corrupted demo_corrupted.jpg
+```
+
+Clean, the fine-tuned model returns Tomato Leaf Mold at confidence 1.0000. With the same leaf shot in
+shade by the simulated robot, it returns Tomato Septoria leaf spot, also at confidence 1.0000.
 
 ### Full retraining
 

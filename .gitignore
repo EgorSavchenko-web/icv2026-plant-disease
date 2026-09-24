@@ -19,6 +19,10 @@ report/*.out
 report/*.synctex.gz
 report/*.fdb_latexmk
 report/*.fls
+report/*.nav
+report/*.snm
+report/*.toc
+demo_corrupted.jpg
 
 .DS_Store
 Thumbs.db
