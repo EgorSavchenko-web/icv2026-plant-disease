@@ -1,0 +1,3 @@
+,mode,test_acc,test_f1,best_epoch,train_time_min,total_params,trainable_params,early_stop_epoch,file
+finetune,finetune,0.9986,0.9976,11,9.9,23585894,23585894,16,logs/training/finetune.log
+frozen,frozen,0.9696,0.9664,42,14.7,23585894,77862,47,logs/training/frozen.log

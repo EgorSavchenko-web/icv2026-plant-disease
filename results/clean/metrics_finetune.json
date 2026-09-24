@@ -1,0 +1,44 @@
+{
+  "tag": "finetune",
+  "mode": "finetune",
+  "checkpoint": "/clearml_agent_cache/storage_manager/datasets/ds_1c06445a7b4a421f8a061f96aa2486c2/best_model.pth",
+  "split": "test",
+  "samples": 2169,
+  "num_classes": 38,
+  "accuracy": 0.9986168741355463,
+  "macro_f1": 0.997629350357287,
+  "weighted_f1": 0.9986042774619766,
+  "mean_confidence": 0.9985337853431702,
+  "mean_confidence_correct": 0.9987265467643738,
+  "mean_confidence_incorrect": 0.8593826293945312,
+  "errors": 3,
+  "full_pass_seconds": 86.9262566419784,
+  "peak_gpu_memory_mb": null,
+  "latency": [
+    {
+      "batch_size": 1,
+      "iterations": 100,
+      "mean_ms_per_batch": 50.387198944808915,
+      "median_ms_per_batch": 49.54643145902082,
+      "p95_ms_per_batch": 54.35460424050689,
+      "mean_ms_per_image": 50.387198944808915,
+      "throughput_images_per_second": 19.846310589626928
+    },
+    {
+      "batch_size": 64,
+      "iterations": 25,
+      "mean_ms_per_batch": 2714.0980244101956,
+      "median_ms_per_batch": 2731.3414399977773,
+      "p95_ms_per_batch": 2912.7798459958285,
+      "mean_ms_per_image": 42.40778163140931,
+      "throughput_images_per_second": 23.580577939482463
+    }
+  ],
+  "environment": {
+    "python": "3.12.3",
+    "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.39",
+    "torch": "2.10.0+cu129",
+    "torchvision": "0.25.0+cu129",
+    "device_type": "cpu"
+  }
+}

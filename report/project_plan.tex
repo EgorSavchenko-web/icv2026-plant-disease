@@ -1,0 +1,145 @@
+\documentclass[10pt,a4paper]{article}
+
+\usepackage[margin=1.9cm]{geometry}
+\usepackage{booktabs}
+\usepackage{microtype}
+\usepackage{times}
+\usepackage{enumitem}
+
+\setlist{nosep,leftmargin=*}
+\setlength{\parskip}{3pt}
+\setlength{\parindent}{0pt}
+
+\title{\vspace{-1.4cm}\textbf{Project Plan --- P02: Plant Disease Recognition from Leaf Images}\vspace{-0.2cm}}
+\author{\small Egor Savchenko \quad Zamir Safin \quad Ilia Ponomarev \quad Vadim Poponnikov\\[2pt]
+\small Innopolis University --- Computer Vision 2026\vspace{-0.3cm}}
+\date{\small 6 October 2026}
+
+\begin{document}
+\maketitle
+
+\section*{1. Project question}
+
+\textbf{Main question.} Does full fine-tuning of an ImageNet-pretrained ResNet-50 retain its
+advantage over frozen-backbone linear probing when leaf images are degraded by realistic robotic
+field-capture artifacts rather than captured under laboratory conditions?
+
+The controlled variable is which parameters receive gradients. Architecture, data, optimiser,
+schedule and seed are held fixed, so any difference between the two conditions is attributable to the
+transfer strategy alone.
+
+\textbf{Sub-questions.}
+\begin{itemize}
+  \item What is the clean-data gap between the two conditions, and at what training cost?
+  \item How sensitive is the fine-tuned condition to the learning rate?
+  \item How does each condition degrade under three independent capture artifacts at three severities?
+  \item Which visually similar disease pairs are confused, and which classes fail first under
+        degradation? (Required explicitly by the P02 brief.)
+\end{itemize}
+
+\section*{2. Dataset}
+
+PlantVillage, Kaggle mirror \texttt{mohitsingh1804/plantvillage}: 38 classes across 14 crops,
+laboratory-captured images of single detached leaves on a uniform background, $256\times256$ px.
+Chosen because it is public, class-balanced enough for macro-averaged metrics, and small enough that
+the whole study fits in the course scope without large-scale training.
+
+Preprocessing: directory names are sanitised, images are resized to $224\times224$ and normalised
+with ImageNet statistics. Training augmentation is horizontal and vertical flips plus rotation up to
+$15^{\circ}$; validation and test use no augmentation.
+
+\section*{3. Train / validation / test split}
+
+\begin{tabular}{lrl}
+\toprule
+\textbf{Split} & \textbf{Images} & \textbf{Origin} \\
+\midrule
+Train & 41\,275 & Kaggle \texttt{train}, minus the test sample \\
+Validation & 10\,861 & Kaggle \texttt{val}, used as shipped \\
+Test & 2\,169 & 5\,\% of each training class, seed 42 \\
+\bottomrule
+\end{tabular}
+
+\textbf{Leakage control.} The test split is built by \emph{moving} files out of \texttt{train}, never
+by copying, so no image can appear in two splits. The split script is deterministic under seed 42 and
+is run exactly once on a fresh download. Class lists are asserted identical across the three splits
+before training starts. Model selection uses validation macro F1 only; the test split is read once
+per run, after training has finished.
+
+\section*{4. Evaluation measures}
+
+\begin{itemize}
+  \item \textbf{Accuracy} --- headline measure, directly comparable with published PlantVillage results.
+  \item \textbf{Macro F1} --- primary measure for model selection and for the comparison, because it
+        weights all 38 classes equally and is not dominated by the largest ones.
+  \item \textbf{Per-class precision, recall and F1} --- to locate which diseases fail.
+  \item \textbf{Confusion pairs} --- off-diagonal mass of the confusion matrix, to answer the
+        visually-similar-disease question in the brief.
+  \item \textbf{Mean confidence on correct and on incorrect predictions} --- calibration under
+        distribution shift.
+  \item \textbf{Cost} --- trainable parameters, epochs to early stop, training time, inference
+        latency at batch 1 and 64, and peak GPU memory.
+\end{itemize}
+
+\section*{5. Baseline and second condition}
+
+\textbf{Baseline:} ResNet-50 with ImageNet weights, backbone frozen, only the 38-way classifier
+trained (77\,862 of 23\,585\,894 parameters) --- a linear probe on fixed features.
+
+\textbf{Second condition:} the same network with all 23\,585\,894 parameters trainable.
+
+\textbf{Ablation:} learning rate $10^{-4}$, $10^{-3}$, $10^{-2}$ on the fine-tuned condition.
+
+\textbf{Degradation study:} both trained models are evaluated, without retraining, on the clean test
+set and on nine degraded versions of it, modelling an autonomous field phenotyping robot ---
+directional motion blur, low light with sensor noise and auto-gain, and JPEG compression, each at
+three severities.
+
+\section*{6. Division of work}
+
+\begin{tabular}{@{}p{3.1cm}p{13.6cm}@{}}
+\toprule
+\textbf{Member} & \textbf{Responsibility} \\
+\midrule
+Egor Savchenko &
+Overall architecture of the study and of the codebase. Formulation of the research question and of
+the experimental design. Implementation of the full pipeline: training in both conditions, the
+learning-rate ablation, the capture-degradation model, the inference and latency benchmark, the
+failure and confusion analysis, and the results assembly. Testing and verification: recomputation of
+every reported metric from the raw per-image predictions, cross-checking of independent runs, and the
+reproducibility guarantees. \\[4pt]
+Zamir Safin &
+Dataset analysis and data handling: selection of the dataset and verification of its source and
+licence; inventory of the 38 classes across 14 crops and their per-class counts; construction of the
+held-out test split and verification that no image appears in two splits; sanitisation of directory
+and file names; verification that the class lists of the three splits are identical; analysis of
+class balance and identification of under-represented classes; the preprocessing and augmentation
+policy; and the dataset provenance and download instructions in the README. \\[4pt]
+Ilia Ponomarev &
+Analysis of existing solutions and architectures: survey of transfer-learning approaches used for
+plant disease recognition; justification of ImageNet-pretrained ResNet-50 as the backbone; framing of
+frozen-backbone probing versus full fine-tuning as the controlled comparison; review of corruption
+and robustness benchmarking practice, which motivates the capture-degradation design; and
+positioning of our numbers against published PlantVillage baselines. \\[4pt]
+Vadim Poponnikov &
+Reporting, demo and presentation: the two-page technical summary, the presentation slides, and the
+live demo including its scenario, the failure case shown, and rehearsal against the time limit. \\
+\bottomrule
+\end{tabular}
+
+\section*{7. Schedule}
+
+\begin{tabular}{@{}llp{10.4cm}@{}}
+\toprule
+\textbf{Date} & \textbf{Milestone} & \textbf{Deliverable} \\
+\midrule
+6 Oct & Project plan & This document \\
+13 Oct & First working model & Dataset pipeline and baseline results \\
+20 Oct & Second approach & Fine-tuned condition and the comparison \\
+27 Oct & Progress check & Preliminary comparison and remaining experiments \\
+3 Nov & Results checkpoint & Final metrics, runtime, tables and figures, failure cases \\
+10 Nov & Final submission & Two-page summary, repository, slides, demo, contributions \\
+\bottomrule
+\end{tabular}
+
+\end{document}

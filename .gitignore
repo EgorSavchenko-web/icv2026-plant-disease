@@ -1,0 +1,24 @@
+PlantVillage/train/
+PlantVillage/val/
+
+checkpoints/
+outputs/
+*.pth
+
+_raw_clearml/
+__pycache__/
+*.pyc
+
+PLAN.md
+PROJECT_MEMORY.md
+project guidelines.pdf
+
+report/*.aux
+report/*.log
+report/*.out
+report/*.synctex.gz
+report/*.fdb_latexmk
+report/*.fls
+
+.DS_Store
+Thumbs.db

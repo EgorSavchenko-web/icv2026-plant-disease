@@ -1,0 +1,48 @@
+{
+  "tag": "frozen",
+  "mode": "frozen",
+  "checkpoint": "/clearml_agent_cache/storage_manager/datasets/ds_afc7ed1976aa42568ebb0b5eac26c4f3/best_model.pth",
+  "split": "test",
+  "samples": 2169,
+  "num_classes": 38,
+  "accuracy": 0.9695712309820194,
+  "macro_f1": 0.9664261949773578,
+  "weighted_f1": 0.9693414152388103,
+  "mean_confidence": 0.9237926602363586,
+  "mean_confidence_correct": 0.9361088275909424,
+  "mean_confidence_incorrect": 0.5313558578491211,
+  "errors": 66,
+  "full_pass_seconds": 2.0538377939956263,
+  "peak_gpu_memory_mb": 773.1,
+  "latency": [
+    {
+      "batch_size": 1,
+      "iterations": 100,
+      "mean_ms_per_batch": 4.740968178957701,
+      "median_ms_per_batch": 4.705784085672349,
+      "p95_ms_per_batch": 4.950210184324533,
+      "mean_ms_per_image": 4.740968178957701,
+      "throughput_images_per_second": 210.9273807064129
+    },
+    {
+      "batch_size": 64,
+      "iterations": 25,
+      "mean_ms_per_batch": 20.120660536922514,
+      "median_ms_per_batch": 20.12113993987441,
+      "p95_ms_per_batch": 20.13928066007793,
+      "mean_ms_per_image": 0.3143853208894143,
+      "throughput_images_per_second": 3180.8100873505864
+    }
+  ],
+  "environment": {
+    "python": "3.12.3",
+    "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.39",
+    "torch": "2.10.0+cu129",
+    "torchvision": "0.25.0+cu129",
+    "device_type": "cuda",
+    "gpu_name": "NVIDIA A100 80GB PCIe",
+    "cuda": "12.9",
+    "cudnn": 91002,
+    "gpu_total_memory_gb": 79.2
+  }
+}

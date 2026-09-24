@@ -1,0 +1,501 @@
+{
+  "clean": {
+    "finetune": {
+      "accuracy": 0.9986168741355463,
+      "macro_f1": 0.997629350357287,
+      "weighted_f1": 0.9986042774619766,
+      "errors": 3,
+      "latency": [
+        {
+          "batch_size": 1,
+          "iterations": 100,
+          "mean_ms_per_batch": 50.387198944808915,
+          "median_ms_per_batch": 49.54643145902082,
+          "p95_ms_per_batch": 54.35460424050689,
+          "mean_ms_per_image": 50.387198944808915,
+          "throughput_images_per_second": 19.846310589626928
+        },
+        {
+          "batch_size": 64,
+          "iterations": 25,
+          "mean_ms_per_batch": 2714.0980244101956,
+          "median_ms_per_batch": 2731.3414399977773,
+          "p95_ms_per_batch": 2912.7798459958285,
+          "mean_ms_per_image": 42.40778163140931,
+          "throughput_images_per_second": 23.580577939482463
+        }
+      ],
+      "peak_gpu_memory_mb": null,
+      "environment": {
+        "python": "3.12.3",
+        "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.39",
+        "torch": "2.10.0+cu129",
+        "torchvision": "0.25.0+cu129",
+        "device_type": "cpu"
+      }
+    },
+    "frozen": {
+      "accuracy": 0.9695712309820194,
+      "macro_f1": 0.9664261949773578,
+      "weighted_f1": 0.9693414152388103,
+      "errors": 66,
+      "latency": [
+        {
+          "batch_size": 1,
+          "iterations": 100,
+          "mean_ms_per_batch": 4.740968178957701,
+          "median_ms_per_batch": 4.705784085672349,
+          "p95_ms_per_batch": 4.950210184324533,
+          "mean_ms_per_image": 4.740968178957701,
+          "throughput_images_per_second": 210.9273807064129
+        },
+        {
+          "batch_size": 64,
+          "iterations": 25,
+          "mean_ms_per_batch": 20.120660536922514,
+          "median_ms_per_batch": 20.12113993987441,
+          "p95_ms_per_batch": 20.13928066007793,
+          "mean_ms_per_image": 0.3143853208894143,
+          "throughput_images_per_second": 3180.8100873505864
+        }
+      ],
+      "peak_gpu_memory_mb": 773.1,
+      "environment": {
+        "python": "3.12.3",
+        "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.39",
+        "torch": "2.10.0+cu129",
+        "torchvision": "0.25.0+cu129",
+        "device_type": "cuda",
+        "gpu_name": "NVIDIA A100 80GB PCIe",
+        "cuda": "12.9",
+        "cudnn": 91002,
+        "gpu_total_memory_gb": 79.2
+      }
+    }
+  },
+  "training": {
+    "finetune": {
+      "log": "logs/training/finetune.log",
+      "clearml_task_id": "94a420606b0f4641882c097ea72e34f5",
+      "worker": "aiagent02:gpu0",
+      "docker_image": "nvidia/cuda:12.9.1-cudnn-runtime-ubuntu24.04",
+      "cuda_version": "12.9.1",
+      "device": "cuda",
+      "num_classes": 38,
+      "train_samples": 41275,
+      "validation_samples": 10861,
+      "test_samples": 2169,
+      "total_parameters": 23585894,
+      "trainable_parameters": 23585894,
+      "early_stop_epoch": 16,
+      "epochs_completed": 16,
+      "mean_epoch_seconds": 36.9,
+      "test_accuracy": 0.9986,
+      "test_macro_f1": 0.9976,
+      "best_epoch": 11,
+      "training_time_minutes": 9.9
+    },
+    "frozen": {
+      "log": "logs/training/frozen.log",
+      "clearml_task_id": "0c611edc350b4d18bab1ed3ab4002b7a",
+      "worker": "aiagent02:gpu1,2",
+      "docker_image": "nvidia/cuda:12.9.1-cudnn-runtime-ubuntu24.04",
+      "cuda_version": "12.9.1",
+      "device": "cuda",
+      "num_classes": 38,
+      "train_samples": 41275,
+      "validation_samples": 10861,
+      "test_samples": 2169,
+      "total_parameters": 23585894,
+      "trainable_parameters": 77862,
+      "early_stop_epoch": 47,
+      "epochs_completed": 47,
+      "mean_epoch_seconds": 18.6,
+      "test_accuracy": 0.9696,
+      "test_macro_f1": 0.9664,
+      "best_epoch": 42,
+      "training_time_minutes": 14.7
+    }
+  },
+  "ablation_lr": {
+    "lr1e-2": {
+      "test_accuracy": 0.9963,
+      "test_macro_f1": 0.9964,
+      "best_epoch": 37,
+      "epochs_completed": 42,
+      "training_time_minutes": 26.0
+    },
+    "lr1e-3": {
+      "test_accuracy": 0.9991,
+      "test_macro_f1": 0.9987,
+      "best_epoch": 25,
+      "epochs_completed": 30,
+      "training_time_minutes": 18.0
+    },
+    "lr1e-4": {
+      "test_accuracy": 0.9986,
+      "test_macro_f1": 0.9976,
+      "best_epoch": 11,
+      "epochs_completed": 16,
+      "training_time_minutes": 9.8
+    }
+  },
+  "inference_cost": {
+    "note": "Both conditions share the same ResNet-50 graph and the same 23,585,894 parameters, so the forward pass and therefore the inference cost are identical. Latency and memory are a property of the architecture and are measured once.",
+    "measured_from": "frozen",
+    "device": "NVIDIA A100 80GB PCIe",
+    "cuda": "12.9",
+    "peak_gpu_memory_mb": 773.1,
+    "full_pass_seconds": 2.0538377939956263,
+    "samples": 2169,
+    "latency_ms_per_image_batch1": 4.741,
+    "throughput_images_per_second_batch1": 210.9,
+    "latency_ms_per_image_batch64": 0.314,
+    "throughput_images_per_second_batch64": 3180.8
+  },
+  "robustness": [
+    {
+      "model": "finetune",
+      "corruption": "none",
+      "severity": 0,
+      "condition": "Clean",
+      "accuracy": 0.9986168741355465,
+      "macro_f1": 0.997629350357287,
+      "mean_confidence": 0.9985313415527344,
+      "errors": 3,
+      "samples": 2169,
+      "accuracy_drop": 0.0,
+      "relative_accuracy_drop": 0.0,
+      "macro_f1_drop": 0.0
+    },
+    {
+      "model": "frozen",
+      "corruption": "none",
+      "severity": 0,
+      "condition": "Clean",
+      "accuracy": 0.9695712309820194,
+      "macro_f1": 0.9664261949773578,
+      "mean_confidence": 0.9237926602363586,
+      "errors": 66,
+      "samples": 2169,
+      "accuracy_drop": 0.0,
+      "relative_accuracy_drop": 0.0,
+      "macro_f1_drop": 0.0
+    },
+    {
+      "model": "finetune",
+      "corruption": "motion_blur",
+      "severity": 1,
+      "condition": "Motion blur s1",
+      "accuracy": 0.9820193637621024,
+      "macro_f1": 0.9767855027854492,
+      "mean_confidence": 0.9893307685852052,
+      "errors": 39,
+      "samples": 2169,
+      "accuracy_drop": 0.016597510373444,
+      "relative_accuracy_drop": 0.0166204986149585,
+      "macro_f1_drop": 0.0208438475718376
+    },
+    {
+      "model": "frozen",
+      "corruption": "motion_blur",
+      "severity": 1,
+      "condition": "Motion blur s1",
+      "accuracy": 0.8492392807745505,
+      "macro_f1": 0.8347841874977812,
+      "mean_confidence": 0.7965515851974487,
+      "errors": 327,
+      "samples": 2169,
+      "accuracy_drop": 0.1203319502074689,
+      "relative_accuracy_drop": 0.1241084165477889,
+      "macro_f1_drop": 0.1316420074795766
+    },
+    {
+      "model": "finetune",
+      "corruption": "motion_blur",
+      "severity": 2,
+      "condition": "Motion blur s2",
+      "accuracy": 0.8533886583679114,
+      "macro_f1": 0.8015463867291129,
+      "mean_confidence": 0.9269260168075562,
+      "errors": 318,
+      "samples": 2169,
+      "accuracy_drop": 0.1452282157676349,
+      "relative_accuracy_drop": 0.1454293628808864,
+      "macro_f1_drop": 0.196082963628174
+    },
+    {
+      "model": "frozen",
+      "corruption": "motion_blur",
+      "severity": 2,
+      "condition": "Motion blur s2",
+      "accuracy": 0.6205624711848778,
+      "macro_f1": 0.5565606053925448,
+      "mean_confidence": 0.7200071811676025,
+      "errors": 823,
+      "samples": 2169,
+      "accuracy_drop": 0.3490087597971415,
+      "relative_accuracy_drop": 0.3599619591060389,
+      "macro_f1_drop": 0.409865589584813
+    },
+    {
+      "model": "finetune",
+      "corruption": "motion_blur",
+      "severity": 3,
+      "condition": "Motion blur s3",
+      "accuracy": 0.5850622406639004,
+      "macro_f1": 0.4642239260456035,
+      "mean_confidence": 0.8583534955978394,
+      "errors": 900,
+      "samples": 2169,
+      "accuracy_drop": 0.4135546334716459,
+      "relative_accuracy_drop": 0.4141274238227146,
+      "macro_f1_drop": 0.5334054243116835
+    },
+    {
+      "model": "frozen",
+      "corruption": "motion_blur",
+      "severity": 3,
+      "condition": "Motion blur s3",
+      "accuracy": 0.46288612263716,
+      "macro_f1": 0.3544176274365831,
+      "mean_confidence": 0.66678386926651,
+      "errors": 1165,
+      "samples": 2169,
+      "accuracy_drop": 0.5066851083448594,
+      "relative_accuracy_drop": 0.5225867807893485,
+      "macro_f1_drop": 0.6120085675407747
+    },
+    {
+      "model": "finetune",
+      "corruption": "low_light",
+      "severity": 1,
+      "condition": "Low light + sensor noise s1",
+      "accuracy": 0.875979714153988,
+      "macro_f1": 0.8799821752959281,
+      "mean_confidence": 0.9560089707374572,
+      "errors": 269,
+      "samples": 2169,
+      "accuracy_drop": 0.1226371599815583,
+      "relative_accuracy_drop": 0.1228070175438596,
+      "macro_f1_drop": 0.1176471750613588
+    },
+    {
+      "model": "frozen",
+      "corruption": "low_light",
+      "severity": 1,
+      "condition": "Low light + sensor noise s1",
+      "accuracy": 0.8658367911479945,
+      "macro_f1": 0.8290457816245613,
+      "mean_confidence": 0.8087770938873291,
+      "errors": 291,
+      "samples": 2169,
+      "accuracy_drop": 0.1037344398340248,
+      "relative_accuracy_drop": 0.1069900142653351,
+      "macro_f1_drop": 0.1373804133527965
+    },
+    {
+      "model": "finetune",
+      "corruption": "low_light",
+      "severity": 2,
+      "condition": "Low light + sensor noise s2",
+      "accuracy": 0.5504840940525588,
+      "macro_f1": 0.4922062022304956,
+      "mean_confidence": 0.8436180353164673,
+      "errors": 975,
+      "samples": 2169,
+      "accuracy_drop": 0.4481327800829875,
+      "relative_accuracy_drop": 0.448753462603878,
+      "macro_f1_drop": 0.5054231481267913
+    },
+    {
+      "model": "frozen",
+      "corruption": "low_light",
+      "severity": 2,
+      "condition": "Low light + sensor noise s2",
+      "accuracy": 0.7100046104195482,
+      "macro_f1": 0.6299037484816153,
+      "mean_confidence": 0.7080435156822205,
+      "errors": 629,
+      "samples": 2169,
+      "accuracy_drop": 0.2595666205624711,
+      "relative_accuracy_drop": 0.2677127912505943,
+      "macro_f1_drop": 0.3365224464957425
+    },
+    {
+      "model": "finetune",
+      "corruption": "low_light",
+      "severity": 3,
+      "condition": "Low light + sensor noise s3",
+      "accuracy": 0.1383125864453665,
+      "macro_f1": 0.0850391026789386,
+      "mean_confidence": 0.5573362112045288,
+      "errors": 1869,
+      "samples": 2169,
+      "accuracy_drop": 0.8603042876901799,
+      "relative_accuracy_drop": 0.8614958448753464,
+      "macro_f1_drop": 0.9125902476783484
+    },
+    {
+      "model": "frozen",
+      "corruption": "low_light",
+      "severity": 3,
+      "condition": "Low light + sensor noise s3",
+      "accuracy": 0.3121254034117104,
+      "macro_f1": 0.2286512766863735,
+      "mean_confidence": 0.5553755164146423,
+      "errors": 1492,
+      "samples": 2169,
+      "accuracy_drop": 0.6574458275703089,
+      "relative_accuracy_drop": 0.6780789348549691,
+      "macro_f1_drop": 0.7377749182909843
+    },
+    {
+      "model": "finetune",
+      "corruption": "jpeg",
+      "severity": 1,
+      "condition": "JPEG compression s1",
+      "accuracy": 0.9953895804518212,
+      "macro_f1": 0.9929934583188236,
+      "mean_confidence": 0.9940140843391418,
+      "errors": 10,
+      "samples": 2169,
+      "accuracy_drop": 0.0032272936837252,
+      "relative_accuracy_drop": 0.0032317636195752,
+      "macro_f1_drop": 0.0046358920384633
+    },
+    {
+      "model": "frozen",
+      "corruption": "jpeg",
+      "severity": 1,
+      "condition": "JPEG compression s1",
+      "accuracy": 0.9289995389580452,
+      "macro_f1": 0.916075276580976,
+      "mean_confidence": 0.8641427755355835,
+      "errors": 154,
+      "samples": 2169,
+      "accuracy_drop": 0.0405716920239741,
+      "relative_accuracy_drop": 0.0418449833571088,
+      "macro_f1_drop": 0.0503509183963817
+    },
+    {
+      "model": "finetune",
+      "corruption": "jpeg",
+      "severity": 2,
+      "condition": "JPEG compression s2",
+      "accuracy": 0.9479022591055786,
+      "macro_f1": 0.9407163440033464,
+      "mean_confidence": 0.9537455439567566,
+      "errors": 113,
+      "samples": 2169,
+      "accuracy_drop": 0.0507146150299677,
+      "relative_accuracy_drop": 0.0507848568790397,
+      "macro_f1_drop": 0.0569130063539405
+    },
+    {
+      "model": "frozen",
+      "corruption": "jpeg",
+      "severity": 2,
+      "condition": "JPEG compression s2",
+      "accuracy": 0.8284923928077456,
+      "macro_f1": 0.793680661018248,
+      "mean_confidence": 0.7361335754394531,
+      "errors": 372,
+      "samples": 2169,
+      "accuracy_drop": 0.1410788381742738,
+      "relative_accuracy_drop": 0.1455064194008558,
+      "macro_f1_drop": 0.1727455339591098
+    },
+    {
+      "model": "finetune",
+      "corruption": "jpeg",
+      "severity": 3,
+      "condition": "JPEG compression s3",
+      "accuracy": 0.7648686030428768,
+      "macro_f1": 0.7149451596301777,
+      "mean_confidence": 0.8009011149406433,
+      "errors": 510,
+      "samples": 2169,
+      "accuracy_drop": 0.2337482710926695,
+      "relative_accuracy_drop": 0.2340720221606649,
+      "macro_f1_drop": 0.2826841907271092
+    },
+    {
+      "model": "frozen",
+      "corruption": "jpeg",
+      "severity": 3,
+      "condition": "JPEG compression s3",
+      "accuracy": 0.6542185338865837,
+      "macro_f1": 0.5895095890181249,
+      "mean_confidence": 0.6215826869010925,
+      "errors": 750,
+      "samples": 2169,
+      "accuracy_drop": 0.3153526970954357,
+      "relative_accuracy_drop": 0.3252496433666191,
+      "macro_f1_drop": 0.3769166059592329
+    }
+  ],
+  "failures": {
+    "models": [
+      "finetune",
+      "frozen"
+    ],
+    "grid_condition": "Motion blur s2",
+    "finetune": {
+      "clean_errors": 3,
+      "clean_error_rate": 0.0013831258644536654,
+      "same_crop_error_share": 1.0,
+      "top_confusions": [
+        {
+          "true_class": "Corn_(maize)___Cercospora_leaf_spot_Gray_leaf_spot",
+          "predicted_class": "Corn_(maize)___Northern_Leaf_Blight",
+          "count": 2,
+          "same_crop": true
+        },
+        {
+          "true_class": "Tomato___Bacterial_spot",
+          "predicted_class": "Tomato___Late_blight",
+          "count": 1,
+          "same_crop": true
+        }
+      ]
+    },
+    "frozen": {
+      "clean_errors": 66,
+      "clean_error_rate": 0.030428769017980636,
+      "same_crop_error_share": 1.0,
+      "top_confusions": [
+        {
+          "true_class": "Tomato___Bacterial_spot",
+          "predicted_class": "Tomato___Late_blight",
+          "count": 4,
+          "same_crop": true
+        },
+        {
+          "true_class": "Tomato___Target_Spot",
+          "predicted_class": "Tomato___Spider_mites_Two-spotted_spider_mite",
+          "count": 4,
+          "same_crop": true
+        },
+        {
+          "true_class": "Tomato___Early_blight",
+          "predicted_class": "Tomato___Late_blight",
+          "count": 3,
+          "same_crop": true
+        },
+        {
+          "true_class": "Tomato___Spider_mites_Two-spotted_spider_mite",
+          "predicted_class": "Tomato___Target_Spot",
+          "count": 3,
+          "same_crop": true
+        },
+        {
+          "true_class": "Peach___healthy",
+          "predicted_class": "Peach___Bacterial_spot",
+          "count": 2,
+          "same_crop": true
+        }
+      ]
+    }
+  }
+}

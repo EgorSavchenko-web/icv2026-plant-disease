@@ -1,0 +1,63 @@
+{
+  "models": [
+    "finetune",
+    "frozen"
+  ],
+  "grid_condition": "Motion blur s2",
+  "finetune": {
+    "clean_errors": 3,
+    "clean_error_rate": 0.0013831258644536654,
+    "same_crop_error_share": 1.0,
+    "top_confusions": [
+      {
+        "true_class": "Corn_(maize)___Cercospora_leaf_spot_Gray_leaf_spot",
+        "predicted_class": "Corn_(maize)___Northern_Leaf_Blight",
+        "count": 2,
+        "same_crop": true
+      },
+      {
+        "true_class": "Tomato___Bacterial_spot",
+        "predicted_class": "Tomato___Late_blight",
+        "count": 1,
+        "same_crop": true
+      }
+    ]
+  },
+  "frozen": {
+    "clean_errors": 66,
+    "clean_error_rate": 0.030428769017980636,
+    "same_crop_error_share": 1.0,
+    "top_confusions": [
+      {
+        "true_class": "Tomato___Bacterial_spot",
+        "predicted_class": "Tomato___Late_blight",
+        "count": 4,
+        "same_crop": true
+      },
+      {
+        "true_class": "Tomato___Target_Spot",
+        "predicted_class": "Tomato___Spider_mites_Two-spotted_spider_mite",
+        "count": 4,
+        "same_crop": true
+      },
+      {
+        "true_class": "Tomato___Early_blight",
+        "predicted_class": "Tomato___Late_blight",
+        "count": 3,
+        "same_crop": true
+      },
+      {
+        "true_class": "Tomato___Spider_mites_Two-spotted_spider_mite",
+        "predicted_class": "Tomato___Target_Spot",
+        "count": 3,
+        "same_crop": true
+      },
+      {
+        "true_class": "Peach___healthy",
+        "predicted_class": "Peach___Bacterial_spot",
+        "count": 2,
+        "same_crop": true
+      }
+    ]
+  }
+}
