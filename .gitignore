@@ -6,6 +6,7 @@ outputs/
 *.pth
 
 _raw_clearml/
+Submissions/
 __pycache__/
 *.pyc
 

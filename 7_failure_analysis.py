@@ -10,8 +10,10 @@ import matplotlib
 matplotlib.use("Agg")
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 from PIL import Image
+from scipy.stats import binomtest
 
 from capture_corruptions import condition_label, corrupt_image
 
@@ -31,6 +33,89 @@ def split_class_name(name: str):
 def shorten(name: str) -> str:
     crop, disease = split_class_name(name)
     return f"{crop.replace('_', ' ')}: {disease.replace('_', ' ')}"
+
+
+def wilson_interval(successes: int, total: int, z: float = 1.96):
+    if total == 0:
+        return (0.0, 0.0)
+    p = successes / total
+    denominator = 1 + z * z / total
+    centre = (p + z * z / (2 * total)) / denominator
+    spread = z * np.sqrt(p * (1 - p) / total + z * z / (4 * total * total)) / denominator
+    return (max(0.0, centre - spread), min(1.0, centre + spread))
+
+
+def expected_calibration_error(confidence, correct, bins: int = 15):
+    edges = np.linspace(0.0, 1.0, bins + 1)
+    error = 0.0
+    for low, high in zip(edges[:-1], edges[1:]):
+        mask = (confidence > low) & (confidence <= high)
+        if not mask.any():
+            continue
+        error += mask.mean() * abs(correct[mask].mean() - confidence[mask].mean())
+    return float(error)
+
+
+def paired_comparison(frame: pd.DataFrame, first: str, second: str, corruption: str, severity: int):
+    a = frame[(frame["model"] == first) & (frame["corruption"] == corruption)
+              & (frame["severity"] == severity)].sort_values("path")
+    b = frame[(frame["model"] == second) & (frame["corruption"] == corruption)
+              & (frame["severity"] == severity)].sort_values("path")
+
+    if len(a) == 0 or len(a) != len(b):
+        return None
+
+    first_only = int((a["correct"].values & ~b["correct"].values).sum())
+    second_only = int((~a["correct"].values & b["correct"].values).sum())
+    discordant = first_only + second_only
+
+    return {
+        "corruption": corruption,
+        "severity": severity,
+        f"{first}_only_correct": first_only,
+        f"{second}_only_correct": second_only,
+        "discordant": discordant,
+        "winner": second if second_only > first_only else first if first_only > second_only else "tie",
+        "p_value": float(binomtest(second_only, discordant, 0.5).pvalue) if discordant else 1.0,
+    }
+
+
+def build_statistics(frame: pd.DataFrame, models):
+    statistics = {"per_condition": [], "paired": []}
+
+    for model in models:
+        for (corruption, severity), group in frame[frame["model"] == model].groupby(
+                ["corruption", "severity"]):
+            correct = group["correct"].values.astype(bool)
+            confidence = group["confidence"].values
+            successes, total = int(correct.sum()), len(group)
+            low, high = wilson_interval(successes, total)
+            wrong = confidence[~correct]
+
+            statistics["per_condition"].append({
+                "model": model,
+                "corruption": corruption,
+                "severity": int(severity),
+                "n": total,
+                "accuracy": successes / total,
+                "accuracy_ci95_low": low,
+                "accuracy_ci95_high": high,
+                "errors": total - successes,
+                "ece": expected_calibration_error(confidence, correct.astype(float)),
+                "mean_confidence": float(confidence.mean()),
+                "mean_confidence_when_wrong": float(wrong.mean()) if len(wrong) else None,
+                "n_errors_behind_that_mean": int(len(wrong)),
+            })
+
+    if len(models) == 2:
+        first, second = sorted(models)
+        for (corruption, severity) in sorted(
+                {(c, int(s)) for c, s in zip(frame["corruption"], frame["severity"])}):
+            result = paired_comparison(frame, first, second, corruption, severity)
+            if result:
+                statistics["paired"].append(result)
+
+    return statistics
 
 
 def resolve_local_path(stored_path: str, data_dir: Path) -> Path:
@@ -233,6 +318,13 @@ def main():
         drops, models, corruption, severity, args.fragile_top, output_dir / "fragile_classes.png"
     )
 
+    statistics = build_statistics(predictions, models)
+    (output_dir / "statistics.json").write_text(json.dumps(statistics, indent=2), encoding="utf-8")
+    pd.DataFrame(statistics["per_condition"]).to_csv(
+        output_dir / "per_condition_statistics.csv", index=False, encoding="utf-8")
+    pd.DataFrame(statistics["paired"]).to_csv(
+        output_dir / "paired_tests.csv", index=False, encoding="utf-8")
+
     summary = {"models": models, "grid_condition": condition_label(corruption, severity)}
 
     for model in models:
@@ -268,6 +360,18 @@ def main():
                 f"  {row['count']:3d}x {shorten(row['true_class'])} -> "
                 f"{shorten(row['predicted_class'])}  [{marker}]"
             )
+
+    print("\n=== Paired tests, identical inputs for both models ===")
+    for row in statistics["paired"]:
+        print(f"  {row['corruption']:14s} s{row['severity']}: winner {row['winner']:9s} "
+              f"discordant {row['discordant']:4d}  p = {row['p_value']:.3g}")
+
+    print("\n=== Calibration (expected calibration error) ===")
+    for row in statistics["per_condition"]:
+        if row["corruption"] in ("none", "low_light") and row["severity"] in (0, 2):
+            print(f"  {row['model']:9s} {row['corruption']:11s} s{row['severity']}: "
+                  f"ECE {row['ece']:.4f} | acc {row['accuracy']:.4f} "
+                  f"[{row['accuracy_ci95_low']:.4f}, {row['accuracy_ci95_high']:.4f}]")
 
     print(f"\nOutputs written to {output_dir.resolve()}")
 

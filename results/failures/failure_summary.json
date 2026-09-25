@@ -3,7 +3,7 @@
     "finetune",
     "frozen"
   ],
-  "grid_condition": "Motion blur s2",
+  "grid_condition": "Low light + sensor noise s2",
   "finetune": {
     "clean_errors": 3,
     "clean_error_rate": 0.0013831258644536654,

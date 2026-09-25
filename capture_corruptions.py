@@ -13,20 +13,23 @@ LOW_LIGHT_FACTORS = {1: 0.50, 2: 0.30, 3: 0.18}
 LOW_LIGHT_READ_NOISE = {1: 0.010, 2: 0.020, 3: 0.035}
 JPEG_QUALITIES = {1: 30, 2: 15, 3: 8}
 FULL_WELL_PHOTONS = 255.0
+GAUSSIAN_SIGMA_MATCHED_TO_LOW_LIGHT = {1: 0.066, 2: 0.105, 3: 0.221}
 
-CORRUPTIONS = ("motion_blur", "low_light", "jpeg")
+CORRUPTIONS = ("motion_blur", "low_light", "gaussian_noise", "jpeg")
 SEVERITIES = (1, 2, 3)
 
 CORRUPTION_LABELS = {
     "none": "Clean",
     "motion_blur": "Motion blur",
     "low_light": "Low light + sensor noise",
+    "gaussian_noise": "Gaussian noise control",
     "jpeg": "JPEG compression",
 }
 
 CORRUPTION_PARAMETERS = {
     "motion_blur": {"kernel_length_px": MOTION_BLUR_LENGTHS},
     "low_light": {"exposure_factor": LOW_LIGHT_FACTORS, "read_noise_sigma": LOW_LIGHT_READ_NOISE},
+    "gaussian_noise": {"sigma": GAUSSIAN_SIGMA_MATCHED_TO_LOW_LIGHT},
     "jpeg": {"quality": JPEG_QUALITIES},
 }
 
@@ -70,6 +73,11 @@ def apply_low_light(array: np.ndarray, severity: int, rng) -> np.ndarray:
     return np.clip(captured / exposure, 0.0, 1.0)
 
 
+def apply_gaussian_noise(array: np.ndarray, severity: int, rng) -> np.ndarray:
+    sigma = GAUSSIAN_SIGMA_MATCHED_TO_LOW_LIGHT[severity]
+    return np.clip(array + rng.normal(0.0, sigma, size=array.shape), 0.0, 1.0)
+
+
 def apply_jpeg(image: Image.Image, severity: int) -> Image.Image:
     buffer = io.BytesIO()
     image.save(buffer, format="JPEG", quality=JPEG_QUALITIES[severity])
@@ -91,6 +99,8 @@ def corrupt_image(image: Image.Image, corruption: str, severity: int, key: str) 
         array = apply_motion_blur(array, severity, rng)
     elif corruption == "low_light":
         array = apply_low_light(array, severity, rng)
+    elif corruption == "gaussian_noise":
+        array = apply_gaussian_noise(array, severity, rng)
     else:
         raise ValueError(f"Unknown corruption: {corruption}")
 

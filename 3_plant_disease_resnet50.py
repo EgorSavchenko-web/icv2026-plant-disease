@@ -15,7 +15,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, f1_score
-from torch.cuda.amp import GradScaler, autocast
+from torch.amp import GradScaler, autocast
 from torch.utils.data import DataLoader
 from torchvision import models, transforms
 from torchvision.datasets import ImageFolder
@@ -115,11 +115,17 @@ def load_datasets(data_root: Path):
     return train_dataset, val_dataset, test_dataset
 
 
+def freeze_backbone_norm(model):
+    for module in model.modules():
+        if isinstance(module, nn.modules.batchnorm._BatchNorm):
+            module.eval()
+
+
 def build_model(num_classes: int, mode: str):
     model = models.resnet50(weights=ResNet50_Weights.DEFAULT)
     model.fc = nn.Linear(model.fc.in_features, num_classes)
 
-    if mode == "frozen":
+    if mode in ("frozen", "linear_probe"):
         for parameter in model.parameters():
             parameter.requires_grad = False
         for parameter in model.fc.parameters():
@@ -158,8 +164,12 @@ def count_trainable_parameters(model):
     return sum(parameter.numel() for parameter in model.parameters() if parameter.requires_grad)
 
 
-def run_epoch(model, loader, criterion, optimizer, device, scaler, train: bool):
+def run_epoch(model, loader, criterion, optimizer, device, scaler, train: bool, freeze_bn: bool = False,
+              amp_enabled: bool = True):
     model.train(train)
+
+    if train and freeze_bn:
+        freeze_backbone_norm(model)
 
     running_loss = 0.0
     all_targets = []
@@ -172,7 +182,7 @@ def run_epoch(model, loader, criterion, optimizer, device, scaler, train: bool):
         if train:
             optimizer.zero_grad(set_to_none=True)
 
-        with autocast(enabled=device.type == "cuda"):
+        with autocast(device_type=device.type, enabled=amp_enabled):
             outputs = model(inputs)
             loss = criterion(outputs, targets)
 
@@ -431,7 +441,11 @@ def build_parser():
     parser = argparse.ArgumentParser(
         description="Plant disease recognition with pretrained ResNet-50."
     )
-    parser.add_argument("--mode", choices=["frozen", "finetune"], default="frozen")
+    parser.add_argument("--mode", choices=["frozen", "linear_probe", "finetune"], default="frozen",
+                        help="frozen: backbone weights fixed but its BatchNorm running statistics "
+                             "still adapt. linear_probe: backbone fully fixed, BatchNorm kept in "
+                             "eval mode, i.e. a true linear probe on frozen features. finetune: "
+                             "all parameters trainable.")
     parser.add_argument("--data-dir", default="./PlantVillage")
     parser.add_argument("--output-dir", default=None)
     parser.add_argument("--epochs", type=int, default=50)
@@ -524,7 +538,8 @@ def main():
         factor=0.5,
         patience=2,
     )
-    scaler = GradScaler(enabled=device.type == "cuda" and not args.no_amp)
+    amp_enabled = device.type == "cuda" and not args.no_amp
+    scaler = GradScaler(device.type, enabled=amp_enabled)
 
     history = {
         "train_loss": [],
@@ -554,6 +569,8 @@ def main():
             device,
             scaler,
             train=True,
+            freeze_bn=args.mode == "linear_probe",
+            amp_enabled=amp_enabled,
         )
 
         val_result = run_epoch(
@@ -564,6 +581,7 @@ def main():
             device,
             scaler,
             train=False,
+            amp_enabled=amp_enabled,
         )
 
         scheduler.step(val_result["macro_f1"])

@@ -39,7 +39,7 @@ def main():
     print("\n" + "=" * 60)
     if DRY_RUN:
         print("DRY RUN - nothing was changed")
-    print(f"Renamed folders: {renamed_files + renamed_dirs}")
+    print(f"Renamed entries: {renamed_files + renamed_dirs}")
     print(f"  folders: {renamed_dirs}")
     print(f"  files:   {renamed_files}")
 

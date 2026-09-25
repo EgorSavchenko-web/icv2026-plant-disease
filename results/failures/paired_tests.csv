@@ -1,0 +1,11 @@
+corruption,severity,finetune_only_correct,frozen_only_correct,discordant,winner,p_value
+jpeg,1,150,6,156,finetune,4.139901611557411e-37
+jpeg,2,323,64,387,finetune,1.0237870717669774e-42
+jpeg,3,480,240,720,finetune,2.446456615629549e-19
+low_light,1,198,176,374,finetune,0.2775114168959707
+low_light,2,236,582,818,frozen,1.6242371758806533e-34
+low_light,3,189,566,755,frozen,1.6917031089391333e-44
+motion_blur,1,303,15,318,finetune,7.407363802599897e-71
+motion_blur,2,595,90,685,finetune,3.539898989594339e-92
+motion_blur,3,441,176,617,finetune,3.417708787415601e-27
+none,0,64,1,65,finetune,3.577867169202165e-18
