@@ -35,6 +35,10 @@ def shorten(name: str) -> str:
     return f"{crop.replace('_', ' ')}: {disease.replace('_', ' ')}"
 
 
+def base_condition(name: str) -> str:
+    return name.rsplit("_s", 1)[0] if "_s" in name and name.rsplit("_s", 1)[1].isdigit() else name
+
+
 def wilson_interval(successes: int, total: int, z: float = 1.96):
     if total == 0:
         return (0.0, 0.0)
@@ -107,13 +111,30 @@ def build_statistics(frame: pd.DataFrame, models):
                 "n_errors_behind_that_mean": int(len(wrong)),
             })
 
-    if len(models) == 2:
-        first, second = sorted(models)
-        for (corruption, severity) in sorted(
-                {(c, int(s)) for c, s in zip(frame["corruption"], frame["severity"])}):
-            result = paired_comparison(frame, first, second, corruption, severity)
-            if result:
-                statistics["paired"].append(result)
+    conditions = {}
+    for name in models:
+        conditions.setdefault(base_condition(name), []).append(name)
+
+    if len(conditions) == 2:
+        first_base, second_base = sorted(conditions)
+        pairs = []
+        for name in sorted(conditions[first_base]):
+            seed = name.rsplit("_s", 1)[1] if "_s" in name else None
+            partner = next((m for m in conditions[second_base]
+                            if (m.rsplit("_s", 1)[1] if "_s" in m else None) == seed), None)
+            if partner:
+                pairs.append((name, partner))
+
+        if not pairs:
+            pairs = [(sorted(conditions[first_base])[0], sorted(conditions[second_base])[0])]
+
+        for first, second in pairs:
+            for (corruption, severity) in sorted(
+                    {(c, int(s)) for c, s in zip(frame["corruption"], frame["severity"])}):
+                result = paired_comparison(frame, first, second, corruption, severity)
+                if result:
+                    result["pair"] = f"{first} vs {second}"
+                    statistics["paired"].append(result)
 
     return statistics
 
@@ -363,8 +384,8 @@ def main():
 
     print("\n=== Paired tests, identical inputs for both models ===")
     for row in statistics["paired"]:
-        print(f"  {row['corruption']:14s} s{row['severity']}: winner {row['winner']:9s} "
-              f"discordant {row['discordant']:4d}  p = {row['p_value']:.3g}")
+        print(f"  {row.get('pair', ''):34s} {row['corruption']:14s} s{row['severity']}: "
+              f"winner {row['winner']:16s} p = {row['p_value']:.3g}")
 
     print("\n=== Calibration (expected calibration error) ===")
     for row in statistics["per_condition"]:

@@ -13,6 +13,7 @@ import matplotlib
 matplotlib.use("Agg")
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
@@ -40,11 +41,15 @@ DATASET_ID = os.environ.get("PLANTVILLAGE_DATASET_ID", "687ee9f1c8dd4af98240e55e
 FALLBACK_MEAN = [0.485, 0.456, 0.406]
 FALLBACK_STD = [0.229, 0.224, 0.225]
 
-MODEL_COLORS = {"frozen": "#0072B2", "finetune": "#D55E00"}
-MODEL_MARKERS = {"frozen": "o", "finetune": "s"}
-MODEL_LINESTYLES = {"frozen": "-", "finetune": "--"}
+MODEL_COLORS = {"frozen": "#0072B2", "linear_probe": "#0072B2", "finetune": "#D55E00"}
+MODEL_MARKERS = {"frozen": "o", "linear_probe": "o", "finetune": "s"}
+MODEL_LINESTYLES = {"frozen": "-", "linear_probe": "-", "finetune": "--"}
 FALLBACK_COLORS = ["#009E73", "#CC79A7", "#56B4E9"]
-MODEL_LABELS = {"frozen": "Frozen backbone", "finetune": "Fine-tuned"}
+MODEL_LABELS = {"frozen": "Frozen backbone", "linear_probe": "Linear probe", "finetune": "Fine-tuned"}
+
+
+def base_condition(name: str) -> str:
+    return name.rsplit("_s", 1)[0] if "_s" in name and name.rsplit("_s", 1)[1].isdigit() else name
 
 
 class CorruptedImageFolder(ImageFolder):
@@ -155,29 +160,48 @@ def plot_degradation(metrics_frame: pd.DataFrame, model_names, output_path: Path
         for column_index, corruption in enumerate(CORRUPTIONS):
             axis = axes[row_index][column_index]
 
-            for model_index, name in enumerate(model_names):
-                color, marker, linestyle = model_style(name, model_index)
+            conditions = []
+            for name in model_names:
+                base = base_condition(name)
+                if base not in conditions:
+                    conditions.append(base)
 
-                clean_value = metrics_frame[
-                    (metrics_frame["model"] == name) & (metrics_frame["corruption"] == "none")
-                ][metric].iloc[0]
+            for condition_index, base in enumerate(conditions):
+                color, marker, linestyle = model_style(base, condition_index)
+                members = [n for n in model_names if base_condition(n) == base]
 
-                subset = metrics_frame[
-                    (metrics_frame["model"] == name) & (metrics_frame["corruption"] == corruption)
-                ].sort_values("severity")
+                series = []
+                for name in members:
+                    clean_value = metrics_frame[
+                        (metrics_frame["model"] == name) & (metrics_frame["corruption"] == "none")
+                    ][metric].iloc[0]
+                    subset = metrics_frame[
+                        (metrics_frame["model"] == name)
+                        & (metrics_frame["corruption"] == corruption)
+                    ].sort_values("severity")
+                    series.append([clean_value] + subset[metric].tolist())
 
-                x_values = [0] + subset["severity"].tolist()
-                y_values = [clean_value] + subset[metric].tolist()
+                values = np.asarray(series, dtype=float)
+                x_values = list(range(values.shape[1]))
+                mean = values.mean(axis=0)
+
+                if values.shape[0] > 1:
+                    axis.fill_between(x_values, values.min(axis=0), values.max(axis=0),
+                                      color=color, alpha=0.18, linewidth=0)
+
+                label = MODEL_LABELS.get(base, base)
+                if values.shape[0] > 1:
+                    label = f"{label} (n={values.shape[0]})"
 
                 axis.plot(
                     x_values,
-                    y_values,
+                    mean,
                     color=color,
                     marker=marker,
                     linestyle=linestyle,
                     linewidth=1.4,
                     markersize=4.0,
-                    label=MODEL_LABELS.get(name, name),
+                    label=label,
                 )
 
             axis.set_xticks([0, 1, 2, 3])
@@ -193,7 +217,7 @@ def plot_degradation(metrics_frame: pd.DataFrame, model_names, output_path: Path
                 axis.set_ylabel(metric_label)
 
     handles, labels = axes[0][0].get_legend_handles_labels()
-    figure.legend(handles, labels, loc="lower center", ncol=len(model_names), frameon=False)
+    figure.legend(handles, labels, loc="lower center", ncol=len(labels), frameon=False)
     figure.tight_layout(rect=(0, 0.11 if len(metric_rows) == 1 else 0.06, 1, 1))
     figure.savefig(output_path, dpi=300, bbox_inches="tight")
     plt.close(figure)
@@ -326,14 +350,20 @@ def resolve_checkpoints(args):
         from clearml import Dataset
 
         filenames = args.model_filenames or [None] * len(args.from_datasets)
-        if len(filenames) != len(args.from_datasets):
+        dataset_ids = list(args.from_datasets)
+
+        if len(dataset_ids) == 1 and len(filenames) > 1:
+            dataset_ids = dataset_ids * len(filenames)
+
+        if len(filenames) != len(dataset_ids):
             raise RuntimeError(
-                "--model-filenames must have the same length as --from-datasets "
-                f"({len(filenames)} vs {len(args.from_datasets)})."
+                "--model-filenames must have the same length as --from-datasets, or a single "
+                f"dataset must be given with several file names ({len(filenames)} vs "
+                f"{len(dataset_ids)})."
             )
 
         resolved = []
-        for dataset_id, filename in zip(args.from_datasets, filenames):
+        for dataset_id, filename in zip(dataset_ids, filenames):
             local_dir = Path(
                 Dataset.get(dataset_id=dataset_id, alias="PlantDiseaseModel").get_local_copy()
             )
@@ -408,9 +438,16 @@ def main():
     reference_classes = None
     transform = None
 
-    for path in checkpoint_paths:
-        model, bundle, classes = load_model(path, device)
-        name = str(bundle.get("mode", path.stem))
+    loaded = [(path,) + load_model(path, device) for path in checkpoint_paths]
+    mode_counts = {}
+    for _, _, bundle, _ in loaded:
+        mode = str(bundle.get("mode", "model"))
+        mode_counts[mode] = mode_counts.get(mode, 0) + 1
+
+    for path, model, bundle, classes in loaded:
+        mode = str(bundle.get("mode", path.stem))
+        seed = bundle.get("configuration", {}).get("seed")
+        name = mode if mode_counts[mode] == 1 else f"{mode}_s{seed}"
 
         if reference_classes is None:
             reference_classes = classes
