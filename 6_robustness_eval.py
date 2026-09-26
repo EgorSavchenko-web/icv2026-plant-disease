@@ -362,12 +362,16 @@ def resolve_checkpoints(args):
                 f"{len(dataset_ids)})."
             )
 
+        local_copies = {}
         resolved = []
+
         for dataset_id, filename in zip(dataset_ids, filenames):
-            local_dir = Path(
-                Dataset.get(dataset_id=dataset_id, alias="PlantDiseaseModel").get_local_copy()
-            )
-            resolved.append(find_checkpoint_in_dir(local_dir, filename))
+            if dataset_id not in local_copies:
+                local_copies[dataset_id] = Path(
+                    Dataset.get(dataset_id=dataset_id, alias="PlantDiseaseModel").get_local_copy()
+                )
+            resolved.append(find_checkpoint_in_dir(local_copies[dataset_id], filename))
+
         return resolved
 
     if not args.checkpoints:
