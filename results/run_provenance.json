@@ -1,0 +1,513 @@
+{
+  "ablation_lr": {
+    "lr1e-2": {
+      "log": "logs/ablation_lr/lr1e-2.log",
+      "clearml_task_id": "c6bab2972406434694a2b1e7d296c423",
+      "worker": "aiagent02:gpu1,2",
+      "docker_image": "nvidia/cuda:12.9.1-cudnn-runtime-ubuntu24.04",
+      "cuda_version": "12.9.1",
+      "device": "cuda",
+      "num_classes": 38,
+      "train_samples": 41275,
+      "validation_samples": 10861,
+      "test_samples": 2169,
+      "total_parameters": 23585894,
+      "trainable_parameters": 23585894,
+      "early_stop_epoch": 42,
+      "epochs_completed": 42,
+      "mean_epoch_seconds": 37.1,
+      "test_accuracy": 0.9963,
+      "test_macro_f1": 0.9964,
+      "best_epoch": 37,
+      "training_time_minutes": 26.0
+    },
+    "lr1e-3": {
+      "log": "logs/ablation_lr/lr1e-3.log",
+      "clearml_task_id": "b81e516cca0d43bc8d911b70c6de2027",
+      "worker": "aiagent02:gpu0",
+      "docker_image": "nvidia/cuda:12.9.1-cudnn-runtime-ubuntu24.04",
+      "cuda_version": "12.9.1",
+      "device": "cuda",
+      "num_classes": 38,
+      "train_samples": 41275,
+      "validation_samples": 10861,
+      "test_samples": 2169,
+      "total_parameters": 23585894,
+      "trainable_parameters": 23585894,
+      "early_stop_epoch": 30,
+      "epochs_completed": 30,
+      "mean_epoch_seconds": 35.9,
+      "test_accuracy": 0.9991,
+      "test_macro_f1": 0.9987,
+      "best_epoch": 25,
+      "training_time_minutes": 18.0
+    },
+    "lr1e-4": {
+      "log": "logs/ablation_lr/lr1e-4.log",
+      "clearml_task_id": "f5b359ed00884b8684c6ae8fca6364b8",
+      "worker": "aiagent02:gpu1,2",
+      "docker_image": "nvidia/cuda:12.9.1-cudnn-runtime-ubuntu24.04",
+      "cuda_version": "12.9.1",
+      "device": "cuda",
+      "num_classes": 38,
+      "train_samples": 41275,
+      "validation_samples": 10861,
+      "test_samples": 2169,
+      "total_parameters": 23585894,
+      "trainable_parameters": 23585894,
+      "early_stop_epoch": 16,
+      "epochs_completed": 16,
+      "mean_epoch_seconds": 36.6,
+      "test_accuracy": 0.9986,
+      "test_macro_f1": 0.9976,
+      "best_epoch": 11,
+      "training_time_minutes": 9.8
+    }
+  },
+  "ablation_lr_linear_probe": {
+    "lr0.0001": {
+      "log": "logs/ablation_lr_linear_probe/lr0.0001.log",
+      "clearml_task_id": "1201b39d353744beb73502b15d554fc8",
+      "worker": "aiagent02:gpu0",
+      "docker_image": "nvidia/cuda:12.9.1-cudnn-runtime-ubuntu24.04",
+      "cuda_version": "12.9.1",
+      "device": "cuda",
+      "num_classes": 38,
+      "train_samples": 41275,
+      "validation_samples": 10861,
+      "test_samples": 2169,
+      "total_parameters": 23585894,
+      "trainable_parameters": 77862,
+      "early_stop_epoch": null,
+      "epochs_completed": 50,
+      "mean_epoch_seconds": 20.5,
+      "test_accuracy": 0.9742,
+      "test_macro_f1": 0.9673,
+      "best_epoch": 50,
+      "training_time_minutes": 17.3
+    },
+    "lr0.001": {
+      "log": "logs/ablation_lr_linear_probe/lr0.001.log",
+      "clearml_task_id": "67026ba8da374231b4a2fe729090263a",
+      "worker": "aiagent02:gpu1,2",
+      "docker_image": "nvidia/cuda:12.9.1-cudnn-runtime-ubuntu24.04",
+      "cuda_version": "12.9.1",
+      "device": "cuda",
+      "num_classes": 38,
+      "train_samples": 41275,
+      "validation_samples": 10861,
+      "test_samples": 2169,
+      "total_parameters": 23585894,
+      "trainable_parameters": 77862,
+      "early_stop_epoch": 26,
+      "epochs_completed": 26,
+      "mean_epoch_seconds": 22.8,
+      "test_accuracy": 0.9788,
+      "test_macro_f1": 0.9726,
+      "best_epoch": 21,
+      "training_time_minutes": 10.0
+    },
+    "lr0.01": {
+      "log": "logs/ablation_lr_linear_probe/lr0.01.log",
+      "clearml_task_id": "314ac75eea7845f18eb3a0cabe8d6414",
+      "worker": "aiagent03:gpu1",
+      "docker_image": "nvidia/cuda:12.9.1-cudnn-runtime-ubuntu24.04",
+      "cuda_version": "12.9.1",
+      "device": "cuda",
+      "num_classes": 38,
+      "train_samples": 41275,
+      "validation_samples": 10861,
+      "test_samples": 2169,
+      "total_parameters": 23585894,
+      "trainable_parameters": 77862,
+      "early_stop_epoch": 36,
+      "epochs_completed": 36,
+      "mean_epoch_seconds": 23.9,
+      "test_accuracy": 0.9843,
+      "test_macro_f1": 0.9804,
+      "best_epoch": 31,
+      "training_time_minutes": 14.4
+    },
+    "lr0.03": {
+      "log": "logs/ablation_lr_linear_probe/lr0.03.log",
+      "clearml_task_id": "8a0da965f52f4dcf82037d1865d7e36d",
+      "worker": "aiagent02:gpu1,2",
+      "docker_image": "nvidia/cuda:12.9.1-cudnn-runtime-ubuntu24.04",
+      "cuda_version": "12.9.1",
+      "device": "cuda",
+      "num_classes": 38,
+      "train_samples": 41275,
+      "validation_samples": 10861,
+      "test_samples": 2169,
+      "total_parameters": 23585894,
+      "trainable_parameters": 77862,
+      "early_stop_epoch": 40,
+      "epochs_completed": 40,
+      "mean_epoch_seconds": 18.0,
+      "test_accuracy": 0.9829,
+      "test_macro_f1": 0.9777,
+      "best_epoch": 35,
+      "training_time_minutes": 12.1
+    },
+    "lr0.1": {
+      "log": "logs/ablation_lr_linear_probe/lr0.1.log",
+      "clearml_task_id": "e1993d5ef79f4410a921d5051f305345",
+      "worker": "aiagent03:gpu0",
+      "docker_image": "nvidia/cuda:12.9.1-cudnn-runtime-ubuntu24.04",
+      "cuda_version": "12.9.1",
+      "device": "cuda",
+      "num_classes": 38,
+      "train_samples": 41275,
+      "validation_samples": 10861,
+      "test_samples": 2169,
+      "total_parameters": 23585894,
+      "trainable_parameters": 77862,
+      "early_stop_epoch": 30,
+      "epochs_completed": 30,
+      "mean_epoch_seconds": 23.6,
+      "test_accuracy": 0.9825,
+      "test_macro_f1": 0.9775,
+      "best_epoch": 25,
+      "training_time_minutes": 11.8
+    }
+  },
+  "evaluation": {
+    "inference_finetune": {
+      "log": "logs/evaluation/inference_finetune.log",
+      "clearml_task_id": "80492395fb4c45e7ba432f60c54c7d45",
+      "worker": "aiagent03:gpu1",
+      "docker_image": "nvidia/cuda:12.9.1-cudnn-runtime-ubuntu24.04",
+      "cuda_version": "12.9.1",
+      "device": "cuda",
+      "clearml_datasets": [],
+      "environment": {
+        "python": "3.12.3",
+        "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.39",
+        "torch": "2.10.0+cu129",
+        "torchvision": "0.25.0+cu129",
+        "device_type": "cuda",
+        "gpu_name": "NVIDIA A100-PCIE-40GB",
+        "cuda": "12.9",
+        "cudnn": 91002,
+        "gpu_total_memory_gb": 39.5
+      },
+      "latency": [
+        {
+          "batch_size": 1,
+          "iterations": 100,
+          "mean_ms_per_batch": 7.302925544790924,
+          "median_ms_per_batch": 7.341188378632069,
+          "p95_ms_per_batch": 7.839337014593184,
+          "mean_ms_per_image": 7.302925544790924,
+          "throughput_images_per_second": 136.93142479225824
+        },
+        {
+          "batch_size": 64,
+          "iterations": 25,
+          "mean_ms_per_batch": 22.691325470805168,
+          "median_ms_per_batch": 22.68961793743074,
+          "p95_ms_per_batch": 22.839433699846268,
+          "mean_ms_per_image": 0.35455196048133075,
+          "throughput_images_per_second": 2820.4610648392
+        }
+      ],
+      "peak_gpu_memory_mb": 773.1
+    },
+    "inference_finetune_cpu_fallback": {
+      "log": "logs/evaluation/inference_finetune_cpu_fallback.log",
+      "clearml_task_id": "24c74c69c18245468414fac91ef33d5b",
+      "worker": "aiagent01:gpu0",
+      "docker_image": "nvidia/cuda:12.9.1-cudnn-runtime-ubuntu24.04",
+      "cuda_version": "12.9.1",
+      "device": "cpu",
+      "clearml_datasets": [
+        {
+          "name": "PlantDisease_ResNet50_model",
+          "id": "1c06445a7b4a421f8a061f96aa2486c2"
+        },
+        {
+          "name": "PlantVillage_processed",
+          "id": "687ee9f1c8dd4af98240e55e4b18258a"
+        }
+      ]
+    },
+    "inference_frozen": {
+      "log": "logs/evaluation/inference_frozen.log",
+      "clearml_task_id": "de7c66f1fb8b4146858dd5f6870d0358",
+      "worker": "aiagent01:gpu1",
+      "docker_image": "nvidia/cuda:12.9.1-cudnn-runtime-ubuntu24.04",
+      "cuda_version": "12.9.1",
+      "device": "cuda",
+      "clearml_datasets": [
+        {
+          "name": "PlantDisease_ResNet50_frozen_model",
+          "id": "afc7ed1976aa42568ebb0b5eac26c4f3"
+        },
+        {
+          "name": "PlantVillage_processed",
+          "id": "687ee9f1c8dd4af98240e55e4b18258a"
+        }
+      ],
+      "environment": {
+        "python": "3.12.3",
+        "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.39",
+        "torch": "2.10.0+cu129",
+        "torchvision": "0.25.0+cu129",
+        "device_type": "cuda",
+        "gpu_name": "NVIDIA A100 80GB PCIe",
+        "cuda": "12.9",
+        "cudnn": 91002,
+        "gpu_total_memory_gb": 79.2
+      },
+      "latency": [
+        {
+          "batch_size": 1,
+          "iterations": 100,
+          "mean_ms_per_batch": 4.740968178957701,
+          "median_ms_per_batch": 4.705784085672349,
+          "p95_ms_per_batch": 4.950210184324533,
+          "mean_ms_per_image": 4.740968178957701,
+          "throughput_images_per_second": 210.9273807064129
+        },
+        {
+          "batch_size": 64,
+          "iterations": 25,
+          "mean_ms_per_batch": 20.120660536922514,
+          "median_ms_per_batch": 20.12113993987441,
+          "p95_ms_per_batch": 20.13928066007793,
+          "mean_ms_per_image": 0.3143853208894143,
+          "throughput_images_per_second": 3180.8100873505864
+        }
+      ],
+      "peak_gpu_memory_mb": 773.1
+    },
+    "inference_linear_probe": {
+      "log": "logs/evaluation/inference_linear_probe.log",
+      "clearml_task_id": "3674098cc04946d095331b7ad4d52671",
+      "worker": "aiagent03:gpu1",
+      "docker_image": "nvidia/cuda:12.9.1-cudnn-runtime-ubuntu24.04",
+      "cuda_version": "12.9.1",
+      "device": "cuda",
+      "clearml_datasets": [],
+      "environment": {
+        "python": "3.12.3",
+        "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.39",
+        "torch": "2.10.0+cu129",
+        "torchvision": "0.25.0+cu129",
+        "device_type": "cuda",
+        "gpu_name": "NVIDIA A100-PCIE-40GB",
+        "cuda": "12.9",
+        "cudnn": 91002,
+        "gpu_total_memory_gb": 39.5
+      },
+      "latency": [
+        {
+          "batch_size": 1,
+          "iterations": 100,
+          "mean_ms_per_batch": 7.089519479777664,
+          "median_ms_per_batch": 7.063800934702158,
+          "p95_ms_per_batch": 7.22840012749657,
+          "mean_ms_per_image": 7.089519479777664,
+          "throughput_images_per_second": 141.0532833505045
+        },
+        {
+          "batch_size": 64,
+          "iterations": 25,
+          "mean_ms_per_batch": 22.721091182902455,
+          "median_ms_per_batch": 22.55479502491653,
+          "p95_ms_per_batch": 23.41707767918706,
+          "mean_ms_per_image": 0.35501704973285086,
+          "throughput_images_per_second": 2816.766126450819
+        }
+      ],
+      "peak_gpu_memory_mb": 773.1
+    },
+    "robustness": {
+      "log": "logs/evaluation/robustness.log",
+      "clearml_task_id": "efa928848b174a2c8efd69fa6c899e51",
+      "worker": "aiagent03:gpu1",
+      "docker_image": "nvidia/cuda:12.9.1-cudnn-runtime-ubuntu24.04",
+      "cuda_version": "12.9.1",
+      "device": null,
+      "clearml_datasets": [
+        {
+          "name": "PlantDisease_ResNet50_frozen_model",
+          "id": "afc7ed1976aa42568ebb0b5eac26c4f3"
+        },
+        {
+          "name": "PlantDisease_ResNet50_model",
+          "id": "1c06445a7b4a421f8a061f96aa2486c2"
+        },
+        {
+          "name": "PlantVillage_processed",
+          "id": "687ee9f1c8dd4af98240e55e4b18258a"
+        }
+      ]
+    },
+    "robustness_six_checkpoints": {
+      "log": "logs/evaluation/robustness_six_checkpoints.log",
+      "clearml_task_id": "f914f6c44bce4e3988385e325e9a5d76",
+      "worker": "aiagent03:gpu0",
+      "docker_image": "nvidia/cuda:12.9.1-cudnn-runtime-ubuntu24.04",
+      "cuda_version": "12.9.1",
+      "device": "cuda",
+      "clearml_datasets": [
+        {
+          "name": "FinalModels",
+          "id": "7cb9212b73d54e9aaf4f2bcd0bf2a03f"
+        }
+      ]
+    }
+  },
+  "seeds": {
+    "finetune_lr0.0001_seed0": {
+      "log": "logs/seeds/finetune_lr0.0001_seed0.log",
+      "clearml_task_id": "c15218a68ffc4eb181a680f92a994203",
+      "worker": "aiagent03:gpu0",
+      "docker_image": "nvidia/cuda:12.9.1-cudnn-runtime-ubuntu24.04",
+      "cuda_version": "12.9.1",
+      "device": "cuda",
+      "num_classes": 38,
+      "train_samples": 41275,
+      "validation_samples": 10861,
+      "test_samples": 2169,
+      "total_parameters": 23585894,
+      "trainable_parameters": 23585894,
+      "early_stop_epoch": 22,
+      "epochs_completed": 22,
+      "mean_epoch_seconds": 45.6,
+      "test_accuracy": 0.9991,
+      "test_macro_f1": 0.998,
+      "best_epoch": 17,
+      "training_time_minutes": 16.7
+    },
+    "finetune_lr0.0001_seed1": {
+      "log": "logs/seeds/finetune_lr0.0001_seed1.log",
+      "clearml_task_id": "d2ade3c4ed8d43a7952feaddc767e8a7",
+      "worker": "aiagent02:gpu1,2",
+      "docker_image": "nvidia/cuda:12.9.1-cudnn-runtime-ubuntu24.04",
+      "cuda_version": "12.9.1",
+      "device": "cuda",
+      "num_classes": 38,
+      "train_samples": 41275,
+      "validation_samples": 10861,
+      "test_samples": 2169,
+      "total_parameters": 23585894,
+      "trainable_parameters": 23585894,
+      "early_stop_epoch": 35,
+      "epochs_completed": 35,
+      "mean_epoch_seconds": 36.1,
+      "test_accuracy": 0.9986,
+      "test_macro_f1": 0.9984,
+      "best_epoch": 30,
+      "training_time_minutes": 21.1
+    },
+    "linear_probe_lr0.01_seed0": {
+      "log": "logs/seeds/linear_probe_lr0.01_seed0.log",
+      "clearml_task_id": "a6f39af2fdfa4d75b969c1c8996359ad",
+      "worker": "aiagent02:gpu1,2",
+      "docker_image": "nvidia/cuda:12.9.1-cudnn-runtime-ubuntu24.04",
+      "cuda_version": "12.9.1",
+      "device": "cuda",
+      "num_classes": 38,
+      "train_samples": 41275,
+      "validation_samples": 10861,
+      "test_samples": 2169,
+      "total_parameters": 23585894,
+      "trainable_parameters": 77862,
+      "early_stop_epoch": 42,
+      "epochs_completed": 42,
+      "mean_epoch_seconds": 18.8,
+      "test_accuracy": 0.982,
+      "test_macro_f1": 0.9766,
+      "best_epoch": 37,
+      "training_time_minutes": 13.3
+    },
+    "linear_probe_lr0.01_seed1": {
+      "log": "logs/seeds/linear_probe_lr0.01_seed1.log",
+      "clearml_task_id": "c5680567c84d44829f0906fbb18272db",
+      "worker": "aiagent01:gpu1",
+      "docker_image": "nvidia/cuda:12.9.1-cudnn-runtime-ubuntu24.04",
+      "cuda_version": "12.9.1",
+      "device": "cuda",
+      "num_classes": 38,
+      "train_samples": 41275,
+      "validation_samples": 10861,
+      "test_samples": 2169,
+      "total_parameters": 23585894,
+      "trainable_parameters": 77862,
+      "early_stop_epoch": 42,
+      "epochs_completed": 42,
+      "mean_epoch_seconds": 19.2,
+      "test_accuracy": 0.9802,
+      "test_macro_f1": 0.9768,
+      "best_epoch": 37,
+      "training_time_minutes": 13.4
+    }
+  },
+  "training": {
+    "finetune": {
+      "log": "logs/training/finetune.log",
+      "clearml_task_id": "94a420606b0f4641882c097ea72e34f5",
+      "worker": "aiagent02:gpu0",
+      "docker_image": "nvidia/cuda:12.9.1-cudnn-runtime-ubuntu24.04",
+      "cuda_version": "12.9.1",
+      "device": "cuda",
+      "num_classes": 38,
+      "train_samples": 41275,
+      "validation_samples": 10861,
+      "test_samples": 2169,
+      "total_parameters": 23585894,
+      "trainable_parameters": 23585894,
+      "early_stop_epoch": 16,
+      "epochs_completed": 16,
+      "mean_epoch_seconds": 36.9,
+      "test_accuracy": 0.9986,
+      "test_macro_f1": 0.9976,
+      "best_epoch": 11,
+      "training_time_minutes": 9.9
+    },
+    "frozen": {
+      "log": "logs/training/frozen.log",
+      "clearml_task_id": "0c611edc350b4d18bab1ed3ab4002b7a",
+      "worker": "aiagent02:gpu1,2",
+      "docker_image": "nvidia/cuda:12.9.1-cudnn-runtime-ubuntu24.04",
+      "cuda_version": "12.9.1",
+      "device": "cuda",
+      "num_classes": 38,
+      "train_samples": 41275,
+      "validation_samples": 10861,
+      "test_samples": 2169,
+      "total_parameters": 23585894,
+      "trainable_parameters": 77862,
+      "early_stop_epoch": 47,
+      "epochs_completed": 47,
+      "mean_epoch_seconds": 18.6,
+      "test_accuracy": 0.9696,
+      "test_macro_f1": 0.9664,
+      "best_epoch": 42,
+      "training_time_minutes": 14.7
+    },
+    "linear_probe": {
+      "log": "logs/training/linear_probe.log",
+      "clearml_task_id": "314ac75eea7845f18eb3a0cabe8d6414",
+      "worker": "aiagent03:gpu1",
+      "docker_image": "nvidia/cuda:12.9.1-cudnn-runtime-ubuntu24.04",
+      "cuda_version": "12.9.1",
+      "device": "cuda",
+      "num_classes": 38,
+      "train_samples": 41275,
+      "validation_samples": 10861,
+      "test_samples": 2169,
+      "total_parameters": 23585894,
+      "trainable_parameters": 77862,
+      "early_stop_epoch": 36,
+      "epochs_completed": 36,
+      "mean_epoch_seconds": 23.9,
+      "test_accuracy": 0.9843,
+      "test_macro_f1": 0.9804,
+      "best_epoch": 31,
+      "training_time_minutes": 14.4
+    }
+  }
+}

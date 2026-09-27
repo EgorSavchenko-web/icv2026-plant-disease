@@ -1,0 +1,109 @@
+\documentclass[aspectratio=169,12pt]{beamer}
+
+\usepackage{graphicx}
+\usepackage{booktabs}
+
+\graphicspath{{../results/robustness/}{../results/failures/}{../results/clean/}}
+
+\usetheme{default}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{itemize items}[circle]
+\setbeamercolor{structure}{fg=blue!55!black}
+\setbeamercolor{alerted text}{fg=orange!75!black}
+\setbeamerfont{frametitle}{size=\large,series=\bfseries}
+\setbeamertemplate{frametitle}{\vspace{6pt}\insertframetitle\vspace{-4pt}}
+\setbeamertemplate{footline}{\hfill\scriptsize\insertframenumber\,/\,3\hspace{10pt}\vspace{4pt}}
+
+\begin{document}
+
+% ---------------------------------------------------------------- 1
+\begin{frame}{Which transfer strategy survives leaving the laboratory?}
+
+\begin{columns}[T]
+\begin{column}{0.56\textwidth}
+PlantVillage: 38 plant diseases, photographed in a lab --- one leaf, grey background, even light.
+A pretrained ResNet-50 saturates on it.
+
+\vspace{6pt}
+So we ask a harder question. Same network, \alert{one variable}: which parameters get gradients.
+
+\vspace{6pt}
+\begin{itemize}
+  \item \textcolor{blue!55!black}{\textbf{Linear probe}} --- backbone frozen, 78\,k parameters
+  \item \textcolor{orange!75!black}{\textbf{Fine-tuned}} --- all 23.6\,M parameters
+\end{itemize}
+
+\vspace{6pt}
+Then we photograph the test set with a \textbf{field robot} instead: motion blur, low light with
+sensor noise, JPEG for the radio link.
+
+\vspace{4pt}
+Three severities, three seeds, no retraining.
+\end{column}
+
+\begin{column}{0.42\textwidth}
+\centering
+\includegraphics[width=0.9\linewidth]{corruption_examples.png}
+
+\vspace{2pt}
+{\scriptsize Rows: blur, low light, Gaussian control, JPEG.\\Columns: clean $\rightarrow$ severity 3.}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------- 2
+\begin{frame}{Fine-tuning wins --- until the noise starts}
+
+\centering
+\includegraphics[width=0.92\linewidth]{degradation_accuracy.png}
+
+\vspace{6pt}
+\raggedright
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+Clean data, seed 42: \textbf{3 errors against 34}.\\[4pt]
+Blur and JPEG: fine-tuning ahead everywhere, by up to 11 points.
+\end{column}
+\begin{column}{0.48\textwidth}
+Sensor noise: \alert{the order reverses}, by 24 points at severity 2.\\[4pt]
+Every seed agrees --- the best fine-tuned run still loses to the worst probe.
+\end{column}
+\end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------- 3
+\begin{frame}{Why, what breaks, and what to take away}
+
+\begin{columns}[T]
+\begin{column}{0.50\textwidth}
+\textbf{A control narrows the cause.}\\[3pt]
+The third panel is pure Gaussian noise, same brightness, no gain. It reproduces the reversal, one
+severity earlier.
+
+\vspace{6pt}
+So noise alone is enough. \emph{Why} it hurts fine-tuning --- filters tuned to lab texture --- is
+still a hypothesis, not a result.
+
+\vspace{14pt}
+\textbf{The failure has a shape.}\\[3pt]
+Under noise the fine-tuned model sends \alert{61--76\,\% of its errors into one class} ---
+Septoria leaf spot, which looks like dark speckle. The probe drifts there too, far less.
+\end{column}
+
+\begin{column}{0.46\textwidth}
+\textbf{And it stops admitting doubt.}\\[3pt]
+Clean: fine-tuning is the better calibrated. Low light, severity 2: ECE \alert{0.26--0.42 against
+0.17--0.20}, three seeds.
+
+\vspace{14pt}
+\textbf{Take away.}
+\begin{itemize}
+  \item Fine-tune by default.
+  \item Robustness is not one number --- it flips with the \emph{kind} of degradation.
+  \item Report calibration, not only accuracy.
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+
+\end{document}

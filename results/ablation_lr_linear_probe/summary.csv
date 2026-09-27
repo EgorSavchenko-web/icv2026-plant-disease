@@ -1,0 +1,6 @@
+,mode,test_acc,test_f1,best_epoch,train_time_min,total_params,trainable_params,early_stop_epoch,file
+linear_probe (lr0.0001),linear_probe,0.9742,0.9673,50,17.3,23585894,77862,,logs/ablation_lr_linear_probe/lr0.0001.log
+linear_probe (lr0.001),linear_probe,0.9788,0.9726,21,10.0,23585894,77862,26,logs/ablation_lr_linear_probe/lr0.001.log
+linear_probe (lr0.01),linear_probe,0.9843,0.9804,31,14.4,23585894,77862,36,logs/ablation_lr_linear_probe/lr0.01.log
+linear_probe (lr0.03),linear_probe,0.9829,0.9777,35,12.1,23585894,77862,40,logs/ablation_lr_linear_probe/lr0.03.log
+linear_probe (lr0.1),linear_probe,0.9825,0.9775,25,11.8,23585894,77862,30,logs/ablation_lr_linear_probe/lr0.1.log

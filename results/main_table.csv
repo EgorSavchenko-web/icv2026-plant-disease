@@ -1,0 +1,4 @@
+model,trainable_parameters,total_parameters,epochs_completed,best_epoch,training_time_minutes,test_accuracy,test_macro_f1,errors,mean_confidence_correct,mean_confidence_incorrect,inference_device,inference_worker,peak_gpu_memory_mb,latency_ms_image_batch1,latency_ms_image_batch64
+finetune,23585894,23585894,16,11,9.9,0.9986168741355463,0.997629350357287,3,0.9987245202064514,0.8590016961097717,cuda,aiagent03:gpu1,773.1,7.303,0.355
+frozen,77862,23585894,47,42,14.7,0.9695712309820194,0.9664261949773578,66,0.9361088275909424,0.5313558578491211,cuda,aiagent01:gpu1,773.1,4.741,0.314
+linear_probe,77862,23585894,36,31,14.4,0.9843245735361917,0.9804325439268429,34,0.9935771226882935,0.7493100166320801,cuda,aiagent03:gpu1,773.1,7.09,0.355

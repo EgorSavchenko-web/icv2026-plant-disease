@@ -1,0 +1,64 @@
+{
+  "test_images": 2169,
+  "train_images": 41275,
+  "unreadable_images": 0,
+  "orientation_sensitive": true,
+  "threshold": 5,
+  "exact_matches": 1,
+  "within_threshold": 51,
+  "within_threshold_fraction": 0.023513,
+  "within_threshold_same_class": 44,
+  "distance_median": 11.0,
+  "distance_mean": 10.6192,
+  "distance_min": 0,
+  "per_model": {
+    "finetune_s0": {
+      "accuracy_all": 0.999078,
+      "accuracy_without_near_duplicates": 0.999056,
+      "delta": -2.2e-05,
+      "removed": 51,
+      "errors_on_near_duplicates": 0,
+      "min_distance_among_errors": 11
+    },
+    "finetune_s1": {
+      "accuracy_all": 0.998617,
+      "accuracy_without_near_duplicates": 0.998584,
+      "delta": -3.3e-05,
+      "removed": 51,
+      "errors_on_near_duplicates": 0,
+      "min_distance_among_errors": 8
+    },
+    "finetune_s42": {
+      "accuracy_all": 0.998617,
+      "accuracy_without_near_duplicates": 0.998584,
+      "delta": -3.3e-05,
+      "removed": 51,
+      "errors_on_near_duplicates": 0,
+      "min_distance_among_errors": 8
+    },
+    "linear_probe_s0": {
+      "accuracy_all": 0.982019,
+      "accuracy_without_near_duplicates": 0.982059,
+      "delta": 3.9e-05,
+      "removed": 51,
+      "errors_on_near_duplicates": 1,
+      "min_distance_among_errors": 4
+    },
+    "linear_probe_s1": {
+      "accuracy_all": 0.980175,
+      "accuracy_without_near_duplicates": 0.98017,
+      "delta": -5e-06,
+      "removed": 51,
+      "errors_on_near_duplicates": 1,
+      "min_distance_among_errors": 4
+    },
+    "linear_probe_s42": {
+      "accuracy_all": 0.984325,
+      "accuracy_without_near_duplicates": 0.984419,
+      "delta": 9.5e-05,
+      "removed": 51,
+      "errors_on_near_duplicates": 1,
+      "min_distance_among_errors": 4
+    }
+  }
+}

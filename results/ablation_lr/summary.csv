@@ -1,0 +1,4 @@
+,mode,test_acc,test_f1,best_epoch,train_time_min,total_params,trainable_params,early_stop_epoch,file
+finetune (lr1e-2),finetune,0.9963,0.9964,37,26.0,23585894,23585894,42,logs/ablation_lr/lr1e-2.log
+finetune (lr1e-3),finetune,0.9991,0.9987,25,18.0,23585894,23585894,30,logs/ablation_lr/lr1e-3.log
+finetune (lr1e-4),finetune,0.9986,0.9976,11,9.8,23585894,23585894,16,logs/ablation_lr/lr1e-4.log

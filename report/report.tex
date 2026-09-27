@@ -1,0 +1,231 @@
+\documentclass[10pt,a4paper,twocolumn]{article}
+
+\usepackage[margin=1.4cm]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{microtype}
+\usepackage{url}
+\usepackage[font=small,labelfont=bf,skip=3pt]{caption}
+\usepackage{times}
+
+\graphicspath{{../results/robustness/}{../results/failures/}{../results/clean/}}
+
+\setlength{\parskip}{0pt}
+\setlength{\columnsep}{0.6cm}
+\setlength{\textfloatsep}{7pt}
+\setlength{\floatsep}{7pt}
+\setlength{\intextsep}{7pt}
+
+\title{\vspace{-1.3cm}\textbf{Fine-Tuning Helps Against Blur and Hurts Against Noise:\\
+Transfer Strategies for Plant Disease Recognition under Field Capture}\vspace{-0.25cm}}
+
+\author{\small Egor Savchenko \quad Zamir Safin \quad Ilia Ponomarev \quad Vadim Poponnikov\\[2pt]
+\small Innopolis University --- Computer Vision 2026 --- Project P02\vspace{-0.35cm}}
+
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem and question}
+
+PlantVillage is captured in a laboratory: one detached leaf, uniform background, even illumination.
+A pretrained ResNet-50 saturates on it, so the question worth asking is not whether transfer learning
+works but \emph{which transfer strategy survives leaving the laboratory}. Kumar et al.~[1]
+show that fine-tuning can distort pretrained features and lose to linear probing out of
+distribution. We ask whether that reversal appears in plant disease recognition, and if so, under
+which kind of degradation. The controlled variable is which parameters receive gradients;
+architecture, data, optimiser, schedule and seed budget are fixed.
+
+\section{Dataset}
+
+PlantVillage~[2], Kaggle mirror, 38 classes over 14 crops. The distribution ships
+\texttt{train} and \texttt{val}; we build the test set by moving 5\,\% of each training class into
+\texttt{test} with seed 42, giving 41\,275 / 10\,861 / 2\,169 images. Images are resized to
+$224{\times}224$ and normalised with ImageNet statistics; training adds flips and rotation up to
+$15^{\circ}$. Model selection uses validation macro F1 only.
+
+\textbf{The split is not grouped by leaf.} PlantVillage holds several photographs of one physical
+leaf and Mohanty et al.\ kept them on one side of their splits; our file-level split does not. A
+64-bit perceptual hash over all 43\,444 images (\texttt{9\_leakage\_check.py}) finds one exact
+match and 51 test images, 2.35\,\%, within
+Hamming distance 5 of a training image, 44 of them in the same class. Removing all 51 moves clean
+accuracy by at most $10^{-4}$ in either direction, for every run of both conditions; one
+linear-probe error per seed falls on a flagged image and no fine-tuned error does. The contamination
+is real, measured, and does not carry the numbers. It is a lower bound: the hash catches only
+near-identical framing and is not invariant to rotation or mirroring.
+
+\section{Method}
+
+Both conditions start from the same \texttt{ResNet50\_Weights.DEFAULT} checkpoint with a 38-way
+linear head. The \textbf{baseline} is a true linear probe: the backbone is frozen \emph{and} every
+BatchNorm module is kept in evaluation mode during training, so the features are genuinely fixed
+(77\,862 of 23\,585\,894 parameters trainable). The \textbf{second condition} fine-tunes all
+23\,585\,894. Shared: AdamW, weight decay $10^{-4}$, batch 64, mixed precision,
+\texttt{ReduceLROnPlateau} on validation macro F1, early stopping with patience 5.
+
+Each condition's learning rate was tuned separately on validation macro F1, since they solve
+different optimisation problems. The probe swept $10^{-4}$ to $10^{-1}$ for 0.9644 / 0.9762 /
+\textbf{0.9793} / 0.9771 / 0.9734, an interior optimum at $10^{-2}$; fine-tuning uses $10^{-4}$, its
+sweep giving 3, 2 and 8 errors with fully overlapping intervals, so no ranking is claimed. Three
+seeds (0, 1, 42) per condition.
+
+\textbf{Capture degradation.} We model an autonomous field robot with artifacts applied to the test
+images in capture space at three severities, seeded per image: \emph{motion blur}, a line kernel of
+5/11/19\,px at a random angle; \emph{low light with sensor noise}, darkened by $0.50/0.30/0.18$ with
+Poisson shot and Gaussian read noise at that level, then scaled back up like a camera raising gain:
+brightness returns, signal-to-noise ratio does not; and
+\emph{JPEG} at quality 30/15/8. Because low light confounds darkening, noise and gain, a
+\textbf{control} adds Gaussian noise at unchanged brightness with $\sigma$ matched to the
+output-referred noise of low light at mid-grey (0.066 / 0.105 / 0.221 against 0.0657 / 0.1048 /
+0.2207). Neither model is retrained.
+
+\section{Results}
+
+\begin{table}[t]
+\centering
+\caption{Clean test set, seed 42, with 95\,\% Wilson intervals; the last row is the mean over three
+seeds.}
+\label{tab:clean}
+\small
+\begin{tabular}{lrr}
+\toprule
+& \textbf{Linear probe} & \textbf{Fine-tuned} \\
+\midrule
+Trainable parameters & 77\,862 & 23\,585\,894 \\
+Epochs to early stop & 36 & 16 \\
+Training time (min) & 14.4 & 9.9 \\
+\midrule
+Accuracy & .9843 [.978,.989] & \textbf{.9986} [.996,.9995] \\
+Macro F1 & .9804 & \textbf{.9976} \\
+Errors of 2\,169 & 34 & \textbf{3} \\
+ECE & .0080 & \textbf{.0016} \\
+\midrule
+Accuracy, 3 seeds & .9822 $\pm$ .0021 & .9988 $\pm$ .0003 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Accuracy under simulated robotic capture: mean over three seeds, [min, max] across seeds.
+Bold marks the winner; ranges never overlap except at low light s1, the one cell with no significant
+difference ($p=0.11$).}
+\label{tab:robust}
+\footnotesize
+\begin{tabular}{llcc}
+\toprule
+\textbf{Artifact} & \textbf{S} & \textbf{Linear probe} & \textbf{Fine-tuned} \\
+\midrule
+Motion blur & 1 & .899 & \textbf{.983} \\
+            & 2 & .724 [.712,.746] & \textbf{.837} [.820,.853] \\
+            & 3 & .524 [.505,.545] & \textbf{.576} [.564,.585] \\
+\midrule
+Low light   & 1 & .886 [.874,.893] & .890 [.876,.906] \\
++ noise     & 2 & \textbf{.776} [.755,.787] & .538 [.454,.610] \\
+            & 3 & \textbf{.438} [.415,.459] & .136 [.131,.140] \\
+\midrule
+Gaussian    & 1 & \textbf{.890} [.877,.896] & .827 [.812,.857] \\
+noise       & 2 & \textbf{.768} [.739,.787] & .485 [.415,.553] \\
+(control)   & 3 & \textbf{.417} [.395,.434] & .133 [.128,.137] \\
+\midrule
+JPEG        & 1 & .960 & \textbf{.996} \\
+            & 2 & .838 [.833,.842] & \textbf{.948} [.944,.953] \\
+            & 3 & .646 [.638,.652] & \textbf{.761} [.756,.765] \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.88\textwidth]{degradation_accuracy.png}
+\caption{Degradation under the four artifacts; line is the mean over three seeds, band the min--max
+range. Fine-tuning dominates under blur and JPEG at every severity; under low light the curves cross
+between severity 1 and 2. The Gaussian control (third panel) reproduces that reversal without any
+darkening or gain, and one severity earlier: noise alone is sufficient to produce it.}
+\label{fig:degradation}
+\end{figure*}
+
+The reversal is not a sampling artefact. Paired McNemar tests on identical inputs give
+$p=1.05{\times}10^{-84}$ at low light severity 2 and $p=6.9{\times}10^{-134}$ at severity 3 for the
+probe, against $p=4.8{\times}10^{-40}$ for fine-tuning at motion blur severity 2; across seeds the
+best fine-tuned run at low light severity 2 (0.610) still falls below the worst probe run (0.755).
+
+\textbf{The control isolates the cause, not the mechanism.} Gaussian noise at unchanged brightness
+reproduces the reversal and produces it earlier --- the probe already wins at severity 1
+($p=1.4{\times}10^{-20}$), where low light is a tie. Darkening and gain are not needed; noise is
+sufficient. How the noise acts is a separate question this control cannot answer. Inference cost is architectural: measured for both conditions on the same
+A100-PCIE-40\,GB worker, 7.09 and 7.30\,ms per image at batch 1, 0.355\,ms for both at batch 64,
+773.1\,MB peak memory for both.
+
+\section{Interpretation}
+
+Our hypothesis, not tested here, is that fine-tuning on noise-free laboratory images tunes early
+filters to high-frequency texture statistics that only that capture regime produces. Blur and JPEG \emph{remove or quantise} high
+frequencies, so the adapted mid-level features still carry the signal and fine-tuning wins by up to
+11 points; noise \emph{injects} random energy into exactly the band those filters occupy, with no
+generic representation left underneath. The frozen ImageNet backbone, trained on web photographs
+that already contain noise and compression, would keep a tolerance fine-tuning trades away; the
+direct test is band-limited noise of equal energy~[4]. The \emph{effect} matches Kumar et al.~[1]
+(2 points gained in distribution, 7 lost out of it), whose proposed mechanism differs; we refine
+it: the reversal depends on the artifact, not on distribution shift in general.
+
+\section{Failure analysis}
+
+\textbf{Clean data.} Every error of the fine-tuned model, two or three per seed, confuses two
+diseases of the same crop; for the linear probe the same-crop share is 0.79 to 0.94 across seeds.
+Frequent pairs are Corn Cercospora/Gray leaf spot $\leftrightarrow$ Northern Leaf Blight, Grape
+Esca $\rightarrow$ Black rot and Tomato Late blight $\rightarrow$ Early blight.
+
+\textbf{Under noise the fine-tuned model concentrates its errors.} At Gaussian noise severity 2 it
+makes 969--1\,268 errors across seeds, 61--76\,\% of them on one label, Tomato Septoria leaf spot,
+over 16--21 predicted classes. The probe makes 462--567 errors over 21--26 classes, its largest
+label taking 22--40\,\% (Target Spot in two seeds). Both drift toward speckled tomato diseases, so
+the label set supplies part of the pull and fine-tuning amplifies it. Septoria's fine dark
+speckling resembles sensor noise: consistent with the hypothesis, not proof of it.
+
+\textbf{Calibration collapses under shift.} On clean data fine-tuning is the better calibrated model
+(ECE 0.0007--0.0016 across seeds against 0.0078--0.0107). At low light severity 2 this inverts:
+0.26--0.42 against 0.17--0.20. The model stops signalling exactly when it leaves its operating regime.
+
+\textbf{Limitations.} The sensor model is an approximation: noise is applied to gamma-encoded sRGB,
+not to a linear signal, and severities were chosen by inspecting degraded test images. Training times come from different cluster workers.
+PlantVillage also carries a background shortcut --- Noyan~[3] reaches 49.0\,\% against
+2.6\,\% for chance from eight background pixels. Next steps: a leaf-grouped split, corruption
+augmentation, and field images over the intersecting classes of PlantDoc.
+
+\section{Reproducibility}
+
+Repository: \url{https://github.com/EgorSavchenko-web/icv2026-plant-disease}.
+Python 3.12, torch 2.10.0, torchvision 0.25.0, CUDA 12.9, NVIDIA A100 under a ClearML agent;
+\texttt{requirements.txt} pins every dependency. The test split is committed with a manifest that
+\texttt{1\_split\_test.py} reproduces exactly, and release v1.1 carries all six checkpoints behind the
+tables plus the BatchNorm ablation, so every number can be verified with \texttt{5\_inference.py} and
+\texttt{6\_robustness\_eval.py} without retraining. Corruptions are seeded per image; task ids, workers,
+hyperparameters and timings are in \texttt{results/run\_provenance.json}.
+
+\section{Members' contributions}
+
+\noindent
+\textbf{Egor Savchenko} --- research question and experimental design; system architecture; training,
+inference, robustness and failure-analysis pipelines; verification and reproducibility.
+\textbf{Zamir Safin} --- dataset selection and provenance; split construction and near-duplicate
+measurement; class balance; preprocessing and augmentation policy.
+\textbf{Ilia Ponomarev} --- survey of existing plant-disease recognition solutions; backbone and
+transfer-strategy selection; positioning against published baselines.
+\textbf{Vadim Poponnikov} --- technical summary, presentation slides and the live demo.
+
+{\scriptsize
+\setlength{\parskip}{0pt}
+\subsection*{References}
+\noindent
+[1] A.~Kumar et al. Fine-Tuning can Distort Pretrained Features and Underperform Out-of-Distribution. \emph{ICLR}, 2022.
+\par\noindent
+[2] S.~P.~Mohanty et al. Using Deep Learning for Image-Based Plant Disease Detection. \emph{Front.\ Plant Sci.}, 2016.
+\par\noindent
+[3] M.~A.~Noyan. Uncovering bias in the PlantVillage dataset. arXiv:2206.04374, 2022.
+\par\noindent
+[4] D.~Yin et al. A Fourier Perspective on Model Robustness in Computer Vision. \emph{NeurIPS}, 2019.
+}
+
+\end{document}
